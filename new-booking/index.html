@@ -394,6 +394,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
               <option value="Assigned">Assigned</option>
               <option value="Completed">Completed</option>
               <option value="Paid">Paid</option><option>Follow Up Visit</option>
+              <option value="Resolved">Resolved</option>
             </select>
           </div>
           <div class="form-group span-2">
@@ -495,6 +496,7 @@ document.getElementById('serviceRequired').addEventListener('change', function()
     document.getElementById('amountCharged').value = '0';
     document.getElementById('amountPaid').value = '0';
     document.getElementById('balanceDisplay').textContent = '0';
+    document.getElementById('jobStatus').value = 'Pending';
   } else {
     paymentCard.style.display = 'block';
   }
