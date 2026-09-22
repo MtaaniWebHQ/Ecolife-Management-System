@@ -335,6 +335,25 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
 .status-badge.assigned{background:rgba(59,130,246,0.1);color:#60A5FA;border:1px solid rgba(59,130,246,0.2)}
 .status-badge.completed{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
 .status-badge.paid{background:rgba(0,200,83,0.15);color:#69F0AE;border:1px solid rgba(0,200,83,0.25)}
+.status-badge.awaiting-verification{background:rgba(96,165,250,0.1);color:#60A5FA;border:1px solid rgba(96,165,250,0.2)}
+.status-badge.resolved{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
+
+.penalty-tag{
+  display:inline-block;padding:3px 10px;border-radius:100px;
+  font-size:11px;font-weight:700;letter-spacing:0.02em;
+  background:rgba(255,82,82,0.1);color:var(--error);border:1px solid rgba(255,82,82,0.22);
+}
+
+.btn-resolve{
+  padding:6px 12px;border-radius:7px;
+  background:rgba(0,230,118,0.1);border:1px solid var(--green-border-strong);
+  color:var(--green);font-family:'Inter',sans-serif;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.btn-resolve:hover{background:rgba(0,230,118,0.18)}
+.btn-resolve:disabled{opacity:0.4;cursor:not-allowed}
+
+.awaiting-tag{font-size:11px;color:var(--text-dim);white-space:nowrap}
 
 .td-amount{font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--white)}
 
@@ -484,9 +503,9 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
         <div class="stat-icon">
           <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg>
         </div>
-        <div class="stat-label">Follow Ups</div>
+        <div class="stat-label">Unresolved Follow-Ups</div>
         <div class="stat-value" id="followUps">0</div>
-        <div class="stat-sub">Complaint revisits</div>
+        <div class="stat-sub">KSh 250 penalty each</div>
       </div>
 
     </div>
@@ -552,9 +571,70 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
       </div>
     </div>
 
+    <!-- FOLLOW-UP PENALTY OVERVIEW -->
+    <div class="section-header">
+      <span class="section-title">Follow-Up Penalty Overview</span>
+      <a class="btn-view-all" href="../reports/">Full report</a>
+    </div>
+    <div class="cards-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="stat-label">Pending Follow-Ups</div>
+        <div class="stat-value" id="fuPending">0</div>
+        <div class="stat-sub">Not yet actioned by technician</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="stat-label">Awaiting Verification</div>
+        <div class="stat-value" id="fuAwaiting">0</div>
+        <div class="stat-sub">Marked complete by technician</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg>
+        </div>
+        <div class="stat-label">Total Unresolved</div>
+        <div class="stat-value" id="fuUnresolved">0</div>
+        <div class="stat-sub">Pending + awaiting verification</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="stat-label">Outstanding Penalties</div>
+        <div class="stat-value" id="fuPenaltyTotal">0</div>
+        <div class="stat-sub">KES across all technicians</div>
+      </div>
+    </div>
+
+    <!-- TECHNICIAN PENALTY RANKING -->
+    <div class="section-header">
+      <span class="section-title">Technicians Ranked by Unresolved Follow-Ups</span>
+    </div>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Technician</th>
+              <th>Unresolved Follow-Ups</th>
+              <th>Penalty (KES)</th>
+            </tr>
+          </thead>
+          <tbody id="technicianRankingBody">
+            <tr class="state-row"><td colspan="3">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- FOLLOW UPS TABLE -->
     <div class="section-header">
-      <span class="section-title">Follow Ups</span>
+      <span class="section-title">Unresolved Follow Ups</span>
       <a class="btn-view-all" href="../reports/">View report</a>
     </div>
     <div class="table-wrap">
@@ -566,12 +646,14 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
               <th>Phone</th>
               <th>Location</th>
               <th>Target Pest</th>
-              <th>Complaint Notes</th>
+              <th>Technician</th>
               <th>Status</th>
+              <th>Penalty (KES)</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody id="followUpsBody">
-            <tr class="state-row"><td colspan="6">Loading follow ups...</td></tr>
+            <tr class="state-row"><td colspan="8">Loading follow ups...</td></tr>
           </tbody>
         </table>
       </div>
@@ -583,7 +665,9 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
 <script type="module">
   import { initializeApp }       from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-  import { getFirestore, collection, getDocs }    from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+  const FOLLOWUP_PENALTY = 250;
 
   const firebaseConfig = {
     apiKey: "AIzaSyBxi76PxDat-G5bjcUQ2MmPe0mGcTE-izs",
@@ -651,7 +735,11 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
       const totalSales = bookings.reduce((s,b) => s + (parseFloat(b.amountCharged)||0), 0);
       const totalPaid  = bookings.reduce((s,b) => s + (parseFloat(b.amountPaid)||0),    0);
       const pendingBal = totalSales - totalPaid;
-      const followUpsData = bookings.filter(b => b.serviceRequired === 'Follow Up Visit');
+      const followUpsData    = bookings.filter(b => b.serviceRequired === 'Follow Up Visit');
+      const fuPendingList    = followUpsData.filter(b => b.status !== 'Completed (Awaiting Verification)' && b.status !== 'Resolved');
+      const fuAwaitingList   = followUpsData.filter(b => b.status === 'Completed (Awaiting Verification)');
+      const fuUnresolvedList = followUpsData.filter(b => b.status !== 'Resolved');
+      const fuPenaltyTotal   = fuUnresolvedList.length * FOLLOWUP_PENALTY;
 
       document.getElementById('totalBookings').textContent    = total;
       document.getElementById('totalBookingsSub').textContent = branch === 'all' ? 'Across all branches' : branch + ' branch';
@@ -660,7 +748,12 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
       document.getElementById('completedSub').textContent     = total > 0 ? Math.round((completed/total)*100) + '% completion rate' : 'No jobs yet';
       document.getElementById('pendingBalance').textContent   = fKES(pendingBal);
       document.getElementById('pendingJobs').textContent      = pending;
-      document.getElementById('followUps').textContent        = followUpsData.length;
+      document.getElementById('followUps').textContent        = fuUnresolvedList.length;
+
+      document.getElementById('fuPending').textContent      = fuPendingList.length;
+      document.getElementById('fuAwaiting').textContent     = fuAwaitingList.length;
+      document.getElementById('fuUnresolved').textContent   = fuUnresolvedList.length;
+      document.getElementById('fuPenaltyTotal').textContent = fKES(fuPenaltyTotal);
 
       // browser notification for admin on new bookings
     const lastSeenAdmin = parseInt(localStorage.getItem('lastSeen_admin')||'0');
@@ -678,12 +771,44 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
 
     const recent = [...bookings].sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0)).slice(0,8);
       renderRecent(recent);
-      renderFollowUps(followUpsData.slice(0,8));
+      renderFollowUps(fuUnresolvedList);
+      renderTechnicianRanking(fuUnresolvedList);
 
     } catch(err) {
       console.error('Dashboard load error:', err);
     }
   }
+
+  function renderTechnicianRanking(unresolvedFollowUps) {
+    const tbody = document.getElementById('technicianRankingBody');
+    const byTech = {};
+    unresolvedFollowUps.forEach(b => {
+      const name = b.technicianAssigned || 'Unassigned';
+      byTech[name] = (byTech[name] || 0) + 1;
+    });
+    const ranked = Object.entries(byTech).sort((a,b) => b[1] - a[1]);
+    if (ranked.length === 0) {
+      tbody.innerHTML = '<tr class="state-row"><td colspan="3">No unresolved follow ups. All clear.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = ranked.map(([name,count]) => `
+      <tr>
+        <td class="td-client">${esc(name)}</td>
+        <td>${count}</td>
+        <td class="td-amount">${fKES(count * FOLLOWUP_PENALTY)}</td>
+      </tr>`).join('');
+  }
+
+  window.resolveFollowUp = async function(id) {
+    if (!confirm('Mark this follow up as Resolved? The KSh 250 penalty will be removed.')) return;
+    try {
+      await updateDoc(doc(db, 'bookings', id), { status: 'Resolved', resolvedAt: new Date() });
+      await loadDashboard(document.getElementById('branchFilter').value);
+    } catch(err) {
+      console.error('Resolve error:', err);
+      alert('Could not resolve this follow up. Please try again.');
+    }
+  };
 
   function renderRecent(bookings) {
     const tbody = document.getElementById('recentBookingsBody');
@@ -701,7 +826,7 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
         <td>${esc(b.branch||'--')}</td>
         <td>${esc(b.technicianAssigned||'Unassigned')}</td>
         <td class="td-amount">${fKES(b.amountCharged)}</td>
-        <td><span class="status-badge ${(b.status||'pending').toLowerCase()}">${esc(b.status||'Pending')}</span></td>
+        <td><span class="status-badge ${statusClass(b.status)}">${esc(b.status||'Pending')}</span></td>
         <td>${fDate(b.serviceDate)}</td>
       </tr>`).join('');
   }
@@ -709,7 +834,7 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
   function renderFollowUps(bookings) {
     const tbody = document.getElementById('followUpsBody');
     if (bookings.length === 0) {
-      tbody.innerHTML = '<tr class="state-row"><td colspan="6">No follow up visits scheduled.</td></tr>';
+      tbody.innerHTML = '<tr class="state-row"><td colspan="8">No unresolved follow ups. All clear.</td></tr>';
       return;
     }
     tbody.innerHTML = bookings.map(b => `
@@ -718,9 +843,17 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
         <td>${esc(b.clientPhone||'--')}</td>
         <td>${esc(b.location||'--')}${b.estate?', '+esc(b.estate):''}</td>
         <td>${esc(b.pestTargeted||'--')}</td>
-        <td style="font-size:12px;color:var(--text-dim);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(b.notes||'No complaint notes')}</td>
-        <td><span class="status-badge ${(b.status||'pending').toLowerCase()}">${esc(b.status||'Pending')}</span></td>
+        <td>${esc(b.technicianAssigned||'Unassigned')}</td>
+        <td><span class="status-badge ${statusClass(b.status)}">${esc(b.status||'Pending')}</span></td>
+        <td><span class="penalty-tag">KES ${FOLLOWUP_PENALTY}</span></td>
+        <td>${b.status === 'Completed (Awaiting Verification)'
+              ? `<button class="btn-resolve" onclick="resolveFollowUp('${b.id}')">Resolve</button>`
+              : `<span class="awaiting-tag">Awaiting technician</span>`}</td>
       </tr>`).join('');
+  }
+
+  function statusClass(status) {
+    return (status || 'pending').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
   }
 
   function fKES(val) {
