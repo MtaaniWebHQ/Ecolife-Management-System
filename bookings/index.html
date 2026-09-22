@@ -61,10 +61,24 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 .topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;overflow-x:auto}
 
 .filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.filter-select,.filter-input{padding:7px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:12.5px;color:var(--text);background:var(--bg-card);outline:none;cursor:pointer;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236B8F71' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px}
-.filter-input{background-image:none;padding-right:12px;width:150px}
-.filter-select:focus,.filter-input:focus{border-color:var(--green-dim)}
-input[type=date].filter-input{width:140px}
+.filter-select,.filter-input{padding:7px 12px;border:1px solid var(--green-border-strong);border-radius:7px;font-family:'Inter',sans-serif;font-size:12.5px;color:var(--text);background:var(--bg-input);outline:none;cursor:pointer;transition:border-color 0.2s,background 0.2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236B8F71' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px}
+.filter-input{background-image:none;padding-right:12px;width:150px;cursor:text}
+.filter-select:hover,.filter-input:hover{border-color:var(--green-dim)}
+.filter-select:focus,.filter-input:focus{border-color:var(--green-dim);background:rgba(0,230,118,0.05)}
+.filter-input::placeholder{color:var(--gray)}
+input[type=date].filter-input{width:140px;color-scheme:dark}
+input[type=date].filter-input::-webkit-calendar-picker-indicator{filter:invert(64%) sepia(89%) saturate(400%) hue-rotate(94deg) brightness(1.15);cursor:pointer;opacity:0.9}
+input[type=date].filter-input::-webkit-calendar-picker-indicator:hover{opacity:1}
+
+.date-wrap{position:relative;display:flex;align-items:center}
+.date-wrap .date-icon{position:absolute;left:10px;width:13px;height:13px;stroke:var(--gray);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;z-index:1}
+.date-wrap .date-input{padding-left:28px}
+.date-wrap .date-placeholder{position:absolute;left:28px;font-size:12.5px;color:var(--gray);pointer-events:none;white-space:nowrap}
+.date-wrap .date-placeholder.hidden{display:none}
+
+.search-wrap{position:relative;display:flex;align-items:center}
+.search-wrap .search-icon{position:absolute;left:10px;width:14px;height:14px;stroke:var(--gray);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.search-wrap .search-input{padding-left:30px}
 
 .btn-new{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;background:linear-gradient(135deg,#00C853 0%,#00A846 100%);color:#050D05;font-family:'Montserrat',sans-serif;font-weight:800;font-size:12px;border-radius:7px;text-decoration:none;transition:all 0.2s;white-space:nowrap;border:none;cursor:pointer;letter-spacing:0.04em;text-transform:uppercase}
 .btn-new:hover{background:linear-gradient(135deg,#00E676 0%,#00C853 100%);box-shadow:0 4px 14px rgba(0,200,83,0.3)}
@@ -157,13 +171,22 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
   .sidebar{transform:translateX(-100%)}
   .sidebar.open{transform:translateX(0)}
   .sidebar-overlay.show{display:block}
-  .topbar{left:0;padding:0 14px;height:60px;flex-wrap:nowrap}
+  .topbar{left:0;padding:0 14px;height:56px;flex-wrap:nowrap}
   .topbar-right{display:none}
-  .main{margin-left:0}
+  .main{margin-left:0;padding-top:56px}
   .menu-toggle{display:flex}
   .main-inner{padding:14px}
-  .mobile-filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
-  .filter-input{width:100px}
+  .mobile-filter-bar{
+    display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+    background:var(--topbar-bg);border-bottom:1px solid var(--green-border);
+    padding:10px 14px;margin:-14px -14px 16px -14px;
+  }
+  .mobile-filter-bar .search-wrap{flex:1 1 100%}
+  .mobile-filter-bar .search-input{width:100%}
+  .mobile-filter-bar .filter-select{flex:1 1 auto;min-width:0}
+  .mobile-filter-bar .date-wrap{flex:1 1 auto;min-width:0}
+  .mobile-filter-bar .date-input{width:100%}
+  .mobile-filter-bar .btn-new{flex:0 0 auto;margin-left:auto}
   .detail-grid{grid-template-columns:1fr}
   .detail-full{grid-column:span 1}
 }
@@ -266,7 +289,10 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
   </div>
   <div class="topbar-right">
     <div class="filter-bar">
-      <input class="filter-input" type="text" id="searchInput" placeholder="Search client...">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="filter-input search-input" type="text" id="searchInput" placeholder="Search name or phone...">
+      </div>
       <select class="filter-select" id="filterBranch">
         <option value="all">All Branches</option>
         <option>Nairobi</option><option>Nakuru</option><option>Eldoret</option><option>Mombasa</option>
@@ -279,7 +305,11 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
         <option>Pending</option><option>Assigned</option><option>Completed</option><option>Paid</option>
 <option>Resolved</option><option>Follow Up Visit</option>
       </select>
-      <input class="filter-input" type="date" id="filterDate">
+      <div class="date-wrap">
+        <svg class="date-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <input class="filter-input date-input" type="date" id="filterDate">
+        <span class="date-placeholder" id="filterDatePh">Service date</span>
+      </div>
     </div>
     <a class="btn-new" href="../new-booking/">
       <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -294,7 +324,10 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
 
     <!-- MOBILE FILTER BAR -->
     <div class="mobile-filter-bar">
-      <input class="filter-input" type="text" id="searchInputMob" placeholder="Search...">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="filter-input search-input" type="text" id="searchInputMob" placeholder="Search name or phone...">
+      </div>
       <select class="filter-select" id="filterBranchMob">
         <option value="all">All Branches</option>
         <option>Nairobi</option><option>Nakuru</option><option>Eldoret</option><option>Mombasa</option>
@@ -307,6 +340,11 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
         <option>Pending</option><option>Assigned</option><option>Completed</option><option>Paid</option>
 <option>Resolved</option><option>Follow Up Visit</option>
       </select>
+      <div class="date-wrap">
+        <svg class="date-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <input class="filter-input date-input" type="date" id="filterDateMob">
+        <span class="date-placeholder" id="filterDateMobPh">Service date</span>
+      </div>
       <a class="btn-new" href="../new-booking/" style="padding:7px 12px;font-size:11px">
         <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         New
@@ -408,9 +446,42 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
     }
   }
 
-  ['searchInput','filterBranch','filterStatus','filterDate'].forEach(id => {
-    document.getElementById(id).addEventListener('input',  () => { currentPage=1; applyFilters(); });
-    document.getElementById(id).addEventListener('change', () => { currentPage=1; applyFilters(); });
+  // Desktop filter controls are mirrored by a set of mobile controls (shown only
+  // under 768px, see .mobile-filter-bar). Wire BOTH sets so filters work on phone
+  // too, and keep each pair in sync so switching orientation/width never loses
+  // whatever the user already typed or picked.
+  const filterPairs = [
+    ['searchInput',  'searchInputMob'],
+    ['filterBranch', 'filterBranchMob'],
+    ['filterStatus', 'filterStatusMob'],
+    ['filterDate',   'filterDateMob']
+  ];
+
+  // Native <input type=date> shows no visible text until a value is picked,
+  // which read as "invisible" on this dark theme — so we lay a placeholder
+  // label on top and toggle it off as soon as a date is chosen.
+  const datePlaceholders = { filterDate: 'filterDatePh', filterDateMob: 'filterDateMobPh' };
+  function syncDatePlaceholder(inputId){
+    const input = document.getElementById(inputId);
+    const ph    = document.getElementById(datePlaceholders[inputId]);
+    if(input && ph) ph.classList.toggle('hidden', !!input.value);
+  }
+
+  filterPairs.forEach(([deskId, mobId]) => {
+    const desk = document.getElementById(deskId);
+    const mob  = document.getElementById(mobId);
+    [desk, mob].forEach(el => {
+      if(!el) return;
+      const other = (el === desk) ? mob : desk;
+      const handler = () => {
+        if(other) other.value = el.value;
+        if(datePlaceholders[deskId]){ syncDatePlaceholder(deskId); syncDatePlaceholder(mobId); }
+        currentPage = 1;
+        applyFilters();
+      };
+      el.addEventListener('input',  handler);
+      el.addEventListener('change', handler);
+    });
   });
 
   function applyFilters(){
