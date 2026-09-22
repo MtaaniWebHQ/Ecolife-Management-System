@@ -91,6 +91,13 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 .status-badge.assigned{background:rgba(59,130,246,0.1);color:#60A5FA;border:1px solid rgba(59,130,246,0.2)}
 .status-badge.completed{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
 .status-badge.paid{background:rgba(0,200,83,0.15);color:#69F0AE;border:1px solid rgba(0,200,83,0.25)}
+.status-badge.awaiting-verification{background:rgba(96,165,250,0.1);color:#60A5FA;border:1px solid rgba(96,165,250,0.2)}
+.status-badge.resolved{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
+
+.penalty-tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;background:rgba(255,82,82,0.1);color:var(--error);border:1px solid rgba(255,82,82,0.22)}
+.btn-mark-complete{padding:8px 16px;background:linear-gradient(135deg,#60A5FA,#3B82F6);color:#04101F;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;border:none;border-radius:7px;cursor:pointer;transition:all 0.2s;white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em}
+.btn-mark-complete:hover{background:linear-gradient(135deg,#7DB6FF,#60A5FA)}
+.followup-note{font-size:12px;color:var(--text-dim);line-height:1.5}
 
 .job-card-body{padding:0 18px 16px;border-top:1px solid var(--green-border);display:none;padding-top:14px}
 .job-card.expanded .job-card-body{display:block}
@@ -184,6 +191,18 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
         <div class="stat-value" id="statSales">0</div>
         <div class="stat-sub">KES charged</div>
       </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg></div>
+        <div class="stat-label">Unresolved Follow-Ups</div>
+        <div class="stat-value" id="statFuUnresolved">0</div>
+        <div class="stat-sub">Attracts KSh 250 each</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="stat-label">Current Penalty</div>
+        <div class="stat-value" id="statFuPenalty">0</div>
+        <div class="stat-sub">KES until resolved</div>
+      </div>
     </div>
 
     <div class="filter-row">
@@ -192,6 +211,8 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
         <option value="all">All Statuses</option>
         <option>Pending</option>
         <option>Completed</option>
+        <option>Completed (Awaiting Verification)</option>
+        <option>Resolved</option>
       </select>
       <input class="filter-date" type="date" id="filterFrom" placeholder="From">
       <input class="filter-date" type="date" id="filterTo" placeholder="To">
@@ -238,6 +259,8 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db   = getFirestore(app);
+
+  const FOLLOWUP_PENALTY = 250;
 
   let myJobs   = [];
   let techName = '';
@@ -325,10 +348,13 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
     const completed = jobs.filter(b=>b.status==='Completed'||b.status==='Paid').length;
     const pending   = jobs.filter(b=>b.status==='Pending'||b.status==='Assigned').length;
     const sales     = jobs.reduce((s,b)=>s+(parseFloat(b.amountCharged)||0),0);
-    document.getElementById('statTotal').textContent     = jobs.length;
-    document.getElementById('statCompleted').textContent = completed;
-    document.getElementById('statPending').textContent   = pending;
-    document.getElementById('statSales').textContent     = fKES(sales);
+    const fuUnresolved = jobs.filter(b=>b.serviceRequired==='Follow Up Visit'&&b.status!=='Resolved').length;
+    document.getElementById('statTotal').textContent      = jobs.length;
+    document.getElementById('statCompleted').textContent  = completed;
+    document.getElementById('statPending').textContent    = pending;
+    document.getElementById('statSales').textContent      = fKES(sales);
+    document.getElementById('statFuUnresolved').textContent = fuUnresolved;
+    document.getElementById('statFuPenalty').textContent    = fKES(fuUnresolved * FOLLOWUP_PENALTY);
   }
 
   function renderJobs(jobs){
@@ -361,7 +387,7 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
             </div>
           </div>
           <div class="job-right">
-            <span class="status-badge ${(b.status||'pending').toLowerCase()}">${esc(b.status||'Pending')}</span>
+            <span class="status-badge ${statusClass(b.status)}">${esc(b.status||'Pending')}</span>
             <span class="job-amount">KES ${fKES(b.amountCharged)}</span>
           </div>
         </div>
@@ -403,6 +429,7 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
               <input type="number" id="paid-${b.id}" value="${parseFloat(b.amountPaid)||0}" min="0" style="flex:1;min-width:100px;padding:8px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:var(--bg-input);outline:none">
               <button class="btn-update" onclick="updatePaid('${b.id}',${parseFloat(b.amountCharged)||0})">Save</button>
             </div>
+            ${b.serviceRequired === 'Follow Up Visit' ? followUpControl(b) : `
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
               <label>Update Status</label>
               <select id="sel-${b.id}" style="flex:1;min-width:130px;padding:8px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:var(--bg-input);outline:none;-webkit-appearance:none;appearance:none">
@@ -412,7 +439,7 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
                 <option ${b.status==='Paid'?'selected':''}>Paid</option>
               </select>
               <button class="btn-update" onclick="updateStatus('${b.id}')">Update</button>
-            </div>
+            </div>`}
           </div>
         </div>
       </div>`;
@@ -446,6 +473,33 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
       showToast('Status updated to '+newStatus+'.','success');
     } catch(e){ showToast('Failed to update status. Please try again.','error'); }
   };
+
+  function followUpControl(b){
+    if(b.status==='Resolved'){
+      return `<div class="followup-note">This follow up has been verified and resolved by the admin.</div>`;
+    }
+    if(b.status==='Completed (Awaiting Verification)'){
+      return `<div class="followup-note">Marked complete. <span class="penalty-tag">Penalty active until admin verifies</span></div>`;
+    }
+    return `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span class="followup-note">Unresolved follow ups carry a <strong>KSh ${FOLLOWUP_PENALTY}</strong> penalty. Mark complete once the visit is done.</span>
+      <button class="btn-mark-complete" onclick="markFollowUpComplete('${b.id}')">Mark as Completed</button>
+    </div>`;
+  }
+
+  window.markFollowUpComplete = async function(id){
+    try{
+      await updateDoc(doc(db,'bookings',id),{status:'Completed (Awaiting Verification)'});
+      const idx = myJobs.findIndex(b=>b.id===id);
+      if(idx>-1) myJobs[idx].status='Completed (Awaiting Verification)';
+      applyFilters();
+      showToast('Follow up marked complete. Awaiting admin verification.','success');
+    } catch(e){ showToast('Failed to update follow up. Please try again.','error'); }
+  };
+
+  function statusClass(status){
+    return (status||'pending').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  }
 
   function showToast(msg,type){
     const t=document.getElementById('toast');
