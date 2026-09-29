@@ -93,6 +93,30 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 .status-badge.paid{background:rgba(0,200,83,0.15);color:#69F0AE;border:1px solid rgba(0,200,83,0.25)}
 .status-badge.awaiting-verification{background:rgba(96,165,250,0.1);color:#60A5FA;border:1px solid rgba(96,165,250,0.2)}
 .status-badge.resolved{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
+.status-badge.lost{background:rgba(255,82,82,0.1);color:#FF8A80;border:1px solid rgba(255,82,82,0.25)}
+.status-badge.pending-deduction{background:rgba(251,146,60,0.12);color:#FB923C;border:1px solid rgba(251,146,60,0.28)}
+.status-badge.deducted{background:rgba(192,132,252,0.12);color:#C084FC;border:1px solid rgba(192,132,252,0.28)}
+.status-badge.waived{background:rgba(148,163,184,0.12);color:#94A3B8;border:1px solid rgba(148,163,184,0.25)}
+
+.pen-section{margin-top:28px}
+.pen-header h3{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--white);margin-bottom:4px;letter-spacing:0.02em}
+.pen-header p{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin-bottom:14px}
+.pen-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.pen-sum{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;padding:12px 14px}
+.pen-sum-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:5px}
+.pen-sum-value{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--white)}
+.pen-sum-sub{font-size:10.5px;color:var(--gray);margin-top:3px}
+.pen-table-wrap{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;overflow:hidden}
+.pen-scroll{overflow-x:auto}
+.pen-table{width:100%;border-collapse:collapse;min-width:780px}
+.pen-table th{background:rgba(0,230,118,0.04);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);padding:11px 14px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--green-border)}
+.pen-table td{padding:12px 14px;font-size:13.5px;color:var(--text);border-bottom:1px solid rgba(0,230,118,0.06);white-space:nowrap}
+.pen-table tr:last-child td{border-bottom:none}
+.pen-table .pen-amt{font-family:'Montserrat',sans-serif;font-weight:700;color:var(--white)}
+.pen-table .pen-due{font-family:'Montserrat',sans-serif;font-weight:700;color:#FF8A80}
+.pen-empty td{text-align:center;color:var(--gray);padding:32px 14px;font-size:14px;white-space:normal}
+.locked-note{font-size:12px;color:var(--text-dim);line-height:1.5}
+@media(max-width:600px){.pen-summary{grid-template-columns:1fr}}
 
 .penalty-tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;background:rgba(255,82,82,0.1);color:var(--error);border:1px solid rgba(255,82,82,0.22)}
 .btn-mark-complete{padding:8px 16px;background:linear-gradient(135deg,#60A5FA,#3B82F6);color:#04101F;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;border:none;border-radius:7px;cursor:pointer;transition:all 0.2s;white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em}
@@ -213,6 +237,10 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
         <option>Completed</option>
         <option>Completed (Awaiting Verification)</option>
         <option>Resolved</option>
+        <option>Lost</option>
+        <option>Pending Deduction</option>
+        <option>Deducted</option>
+        <option>Waived</option>
       </select>
       <input class="filter-date" type="date" id="filterFrom" placeholder="From">
       <input class="filter-date" type="date" id="filterTo" placeholder="To">
@@ -236,6 +264,24 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 
     <div class="jobs-wrap" id="jobsWrap">
       <div class="empty-state"><p>Loading your jobs...</p></div>
+    </div>
+
+    <div class="pen-section">
+      <div class="pen-header">
+        <h3>Job Loss Penalty</h3>
+        <p>A confirmed job lost through technician negligence carries a 30% penalty of the total quoted value. These records are read-only.</p>
+      </div>
+      <div class="pen-summary">
+        <div class="pen-sum"><div class="pen-sum-label">Pending Deduction</div><div class="pen-sum-value" id="penSumPending" style="color:#FB923C">KES 0</div><div class="pen-sum-sub" id="penSumPendingSub">0 jobs</div></div>
+        <div class="pen-sum"><div class="pen-sum-label">Deducted</div><div class="pen-sum-value" id="penSumDeducted" style="color:#C084FC">KES 0</div><div class="pen-sum-sub" id="penSumDeductedSub">0 jobs</div></div>
+        <div class="pen-sum"><div class="pen-sum-label">Waived</div><div class="pen-sum-value" id="penSumWaived" style="color:#94A3B8">KES 0</div><div class="pen-sum-sub" id="penSumWaivedSub">0 jobs</div></div>
+      </div>
+      <div class="pen-table-wrap"><div class="pen-scroll">
+        <table class="pen-table">
+          <thead><tr><th>Date</th><th>Job Ref</th><th>Client</th><th>Total Quote</th><th>Penalty %</th><th>Penalty Amount</th><th>Reason</th><th>Status</th></tr></thead>
+          <tbody id="penBody"><tr class="pen-empty"><td colspan="8">Loading...</td></tr></tbody>
+        </table>
+      </div></div>
     </div>
 
   </div>
@@ -265,6 +311,8 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
   let myJobs   = [];
   let techName = '';
   let techData = null;
+  let myPenalties = [];
+  const PENALTY_LOCKED = ['Lost','Pending Deduction','Deducted','Waived'];
 
   document.getElementById('signOutBtn').addEventListener('click', async () => {
     await signOut(auth);
@@ -313,7 +361,42 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
       }
     }
 
+    try{
+      const ps = await getDocs(collection(db,'joblosses'));
+      myPenalties = ps.docs.map(d => ({ id:d.id, ...d.data() }))
+        .filter(p => p.technicianName === techName)
+        .sort((a,b) => (b.lostDate||'').localeCompare(a.lostDate||''));
+    } catch(e){ console.error('Could not load job loss penalties', e); myPenalties = []; }
+    renderPenalties();
+
     applyFilters();
+  }
+
+  function renderPenalties(){
+    const sum = st => myPenalties.filter(p=>p.status===st).reduce((t,p)=>t+(parseFloat(p.penaltyAmount)||0),0);
+    const cnt = st => myPenalties.filter(p=>p.status===st).length;
+    const jobsTxt = n => n+' job'+(n!==1?'s':'');
+    document.getElementById('penSumPending').textContent    = 'KES '+fKES(sum('Pending Deduction'));
+    document.getElementById('penSumDeducted').textContent   = 'KES '+fKES(sum('Deducted'));
+    document.getElementById('penSumWaived').textContent     = 'KES '+fKES(sum('Waived'));
+    document.getElementById('penSumPendingSub').textContent  = jobsTxt(cnt('Pending Deduction'));
+    document.getElementById('penSumDeductedSub').textContent = jobsTxt(cnt('Deducted'));
+    document.getElementById('penSumWaivedSub').textContent   = jobsTxt(cnt('Waived'));
+    const tbody = document.getElementById('penBody');
+    if(myPenalties.length===0){
+      tbody.innerHTML = '<tr class="pen-empty"><td colspan="8">No job loss penalties. Keep it up.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = myPenalties.map(p => `<tr>
+      <td>${fDate(p.lostDate)}</td>
+      <td>${esc(p.jobRef||('JOB-'+String(p.bookingId||p.id).slice(0,6).toUpperCase()))}</td>
+      <td>${esc(p.clientName||'--')}</td>
+      <td class="pen-amt">KES ${fKES(p.quoteValue)}</td>
+      <td>${esc(p.penaltyPercent||30)}%</td>
+      <td class="pen-due">KES ${fKES(p.penaltyAmount)}</td>
+      <td>${esc(p.reason||'Technician Negligence')}</td>
+      <td><span class="status-badge ${statusClass(p.status)}">${esc(p.status||'Pending Deduction')}</span></td>
+    </tr>`).join('');
   }
 
   ['filterStatus','filterFrom','filterTo','filterBranch','filterPayment'].forEach(id => {
@@ -429,7 +512,7 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
               <input type="number" id="paid-${b.id}" value="${parseFloat(b.amountPaid)||0}" min="0" style="flex:1;min-width:100px;padding:8px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:var(--bg-input);outline:none">
               <button class="btn-update" onclick="updatePaid('${b.id}',${parseFloat(b.amountCharged)||0})">Save</button>
             </div>
-            ${b.serviceRequired === 'Follow Up Visit' ? followUpControl(b) : `
+            ${PENALTY_LOCKED.includes(b.status) ? lockedControl(b) : b.serviceRequired === 'Follow Up Visit' ? followUpControl(b) : `
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
               <label>Update Status</label>
               <select id="sel-${b.id}" style="flex:1;min-width:130px;padding:8px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:var(--bg-input);outline:none;-webkit-appearance:none;appearance:none">
@@ -473,6 +556,10 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
       showToast('Status updated to '+newStatus+'.','success');
     } catch(e){ showToast('Failed to update status. Please try again.','error'); }
   };
+
+  function lockedControl(b){
+    return `<div class="locked-note">This job is marked <strong>${esc(b.status)}</strong>. Status changes on it are handled by the admin.</div>`;
+  }
 
   function followUpControl(b){
     if(b.status==='Resolved'){
