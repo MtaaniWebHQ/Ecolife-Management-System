@@ -116,6 +116,11 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
 .status-badge.paid{background:rgba(0,200,83,0.15);color:#69F0AE;border:1px solid rgba(0,200,83,0.25)}
 .status-badge.completed-awaiting-verification{background:rgba(96,165,250,0.12);color:#60A5FA;border:1px solid rgba(96,165,250,0.25)}
 .status-badge.resolved{background:rgba(0,230,118,0.15);color:var(--green);border:1px solid rgba(0,230,118,0.3)}
+.status-badge.lost{background:rgba(255,82,82,0.1);color:#FF8A80;border:1px solid rgba(255,82,82,0.25)}
+.status-badge.pending-deduction{background:rgba(251,146,60,0.12);color:#FB923C;border:1px solid rgba(251,146,60,0.28)}
+.status-badge.deducted{background:rgba(192,132,252,0.12);color:#C084FC;border:1px solid rgba(192,132,252,0.28)}
+.status-badge.waived{background:rgba(148,163,184,0.12);color:#94A3B8;border:1px solid rgba(148,163,184,0.25)}
+.loss-note{display:none;margin-top:10px;padding:10px 12px;border-radius:8px;background:rgba(255,82,82,0.06);border:1px solid rgba(255,82,82,0.2);font-size:12.5px;color:#FF8A80;line-height:1.5}
 
 .state-row td{text-align:center;padding:48px 24px;color:var(--gray);font-size:15px}
 
@@ -223,9 +228,25 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
           <option value="Paid">Paid</option>
           <option value="Resolved">Resolved</option>
           <option value="Follow Up Visit">Follow Up Visit</option>
+          <option value="Lost">Lost</option>
+          <option value="Pending Deduction">Pending Deduction</option>
+          <option value="Deducted">Deducted</option>
+          <option value="Waived">Waived</option>
         </select>
         <button class="btn-update-status" id="updateStatusBtn">Update</button>
       </div>
+      <div class="status-update-row" id="lossReasonRow" style="display:none">
+        <label>Reason for loss</label>
+        <select class="status-update-select" id="lossReasonSelect">
+          <option value="">Select reason...</option>
+          <option value="Technician Negligence">Technician Negligence</option>
+          <option value="Client Cancelled">Client Cancelled</option>
+          <option value="Client Chose Competitor">Client Chose Competitor</option>
+          <option value="Price Too High">Price Too High</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="loss-note" id="lossNote"></div>
     </div>
     <div class="modal-footer">
       <button class="btn-modal-close" id="modalCloseBtn">Close</button>
@@ -303,7 +324,7 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
       <select class="filter-select" id="filterStatus">
         <option value="all">All Statuses</option>
         <option>Pending</option><option>Assigned</option><option>Completed</option><option>Paid</option>
-<option>Resolved</option><option>Follow Up Visit</option>
+<option>Resolved</option><option>Follow Up Visit</option><option>Lost</option><option>Pending Deduction</option><option>Deducted</option><option>Waived</option>
       </select>
       <div class="date-wrap">
         <svg class="date-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -338,12 +359,12 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
       <select class="filter-select" id="filterStatusMob">
         <option value="all">All Statuses</option>
         <option>Pending</option><option>Assigned</option><option>Completed</option><option>Paid</option>
-<option>Resolved</option><option>Follow Up Visit</option>
+<option>Resolved</option><option>Follow Up Visit</option><option>Lost</option><option>Pending Deduction</option><option>Deducted</option><option>Waived</option>
       </select>
       <div class="date-wrap">
         <svg class="date-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         <input class="filter-input date-input" type="date" id="filterDateMob">
-        <span class="date-placeholder" id="filterDateMobPh">Service date</span>
+        <span class="date-placeholder" id="filterDateMobPh"></span>
       </div>
       <a class="btn-new" href="../new-booking/" style="padding:7px 12px;font-size:11px">
         <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -392,7 +413,7 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBxi76PxDat-G5bjcUQ2MmPe0mGcTE-izs",
@@ -414,6 +435,12 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
   let currentPage   = 1;
   let activeBooking = null;
 
+  const ADMIN_EMAIL     = 'ecolifepestguard@gmail.com';
+  const PENALTY_RATE    = 30; // percent of total quote
+  const PENALTY_STATES  = ['Pending Deduction','Deducted','Waived'];
+  let penalties         = {};   // keyed by bookingId
+  let currentUserEmail  = '';
+
   document.getElementById('menuToggle').addEventListener('click', () => {
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('overlay').classList.toggle('show');
@@ -425,8 +452,11 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = '../'; return; }
+    if (user.email !== ADMIN_EMAIL) { window.location.href = '../dashboard/'; return; }
+    currentUserEmail = user.email;
     document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
     document.getElementById('userName').textContent   = user.email.split('@')[0];
+    await loadPenalties();
     await loadBookings();
   });
 
@@ -434,6 +464,14 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
     await signOut(auth);
     window.location.href = '../';
   });
+
+  async function loadPenalties(){
+    try{
+      const snap = await getDocs(collection(db,'joblosses'));
+      penalties = {};
+      snap.docs.forEach(d => { const p = { id:d.id, ...d.data() }; penalties[p.bookingId||d.id] = p; });
+    } catch(e){ console.error('Could not load job loss penalties', e); }
+  }
 
   async function loadBookings(){
     try{
@@ -594,9 +632,12 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
       <div class="detail-item"><div class="detail-label">Amount Paid</div><div class="detail-value amount">KES ${fKES(b.amountPaid)}</div></div>
       <div class="detail-item"><div class="detail-label">Balance</div><div class="detail-value amount" style="color:${bal>0?'#FF8A80':'#00E676'}">KES ${fKES(bal)}</div></div>
       <div class="detail-item"><div class="detail-label">Status</div><div class="detail-value"><span class="status-badge ${statusClass(b.status)}">${esc(b.status||'Pending')}</span></div></div>
+      ${lossDetail(b)}
       <div class="detail-item detail-full"><div class="detail-label">Notes</div><div class="detail-value">${esc(b.notes||'No notes added.')}</div></div>
     `;
     document.getElementById('statusUpdateSelect').value = b.status||'Pending';
+    document.getElementById('lossReasonSelect').value = b.lossReason||'';
+    refreshLossUI();
     document.getElementById('amountPaidUpdate').value = parseFloat(b.amountPaid)||0;
     document.getElementById('modalBg').classList.add('open');
   };
@@ -631,23 +672,121 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
     } catch(e){ showToast('Failed to update amount. Please try again.','error'); }
   });
 
+  const statusSel = document.getElementById('statusUpdateSelect');
+  const reasonRow = document.getElementById('lossReasonRow');
+  const reasonSel = document.getElementById('lossReasonSelect');
+  const lossNote  = document.getElementById('lossNote');
+
+  function refreshLossUI(){
+    const isLost = statusSel.value === 'Lost';
+    reasonRow.style.display = isLost ? 'flex' : 'none';
+    let msg = '';
+    if(isLost && reasonSel.value === 'Technician Negligence' && activeBooking){
+      const q = parseFloat(activeBooking.amountCharged)||0;
+      msg = `Technician negligence: a ${PENALTY_RATE}% penalty of KES ${fKES(penaltyOf(q))} (quote KES ${fKES(q)}) will be recorded against ${esc(activeBooking.technicianAssigned||'the technician')} as Pending Deduction.`;
+    } else if(PENALTY_STATES.includes(statusSel.value)){
+      msg = 'This also updates the job loss penalty record for this booking.';
+    }
+    lossNote.style.display = msg ? 'block' : 'none';
+    lossNote.innerHTML = msg;
+  }
+  statusSel.addEventListener('change', refreshLossUI);
+  reasonSel.addEventListener('change', refreshLossUI);
+
+  function penaltyOf(quote){ return Math.round(quote * PENALTY_RATE) / 100; }
+  function jobRef(id){ return 'JOB-' + String(id).slice(0,6).toUpperCase(); }
+  function todayISO(){
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+
+  function lossDetail(b){
+    const p = penalties[b.id];
+    let h = '';
+    if(b.lossReason) h += `<div class="detail-item"><div class="detail-label">Loss Reason</div><div class="detail-value">${esc(b.lossReason)}</div></div>`;
+    if(p) h += `<div class="detail-item"><div class="detail-label">Job Loss Penalty (${esc(p.penaltyPercent||PENALTY_RATE)}%)</div><div class="detail-value amount">KES ${fKES(p.penaltyAmount)} <span class="status-badge ${statusClass(p.status)}">${esc(p.status||'')}</span></div></div>`;
+    return h;
+  }
+
+  async function setPenaltyStatus(p, status){
+    const upd = { status, updatedAt: serverTimestamp(), updatedBy: currentUserEmail };
+    if(status === 'Deducted') upd.deductedAt = serverTimestamp();
+    if(status === 'Waived')   upd.waivedAt   = serverTimestamp();
+    await updateDoc(doc(db,'joblosses',p.id), upd);
+    p.status = status;
+  }
+
   document.getElementById('updateStatusBtn').addEventListener('click', async ()=>{
     if(!activeBooking) return;
-    const newStatus = document.getElementById('statusUpdateSelect').value;
+    const b         = activeBooking;
+    const newStatus = statusSel.value;
+    const pen       = penalties[b.id];
+    const updates   = { status:newStatus };
+    let toastMsg    = 'Status updated to '+newStatus+'.';
+
     try{
-      await updateDoc(doc(db,'bookings',activeBooking.id),{status:newStatus});
-      activeBooking.status=newStatus;
-      const idx=allBookings.findIndex(b=>b.id===activeBooking.id);
-      if(idx>-1) allBookings[idx].status=newStatus;
+      if(newStatus === 'Lost'){
+        const reason = reasonSel.value;
+        if(!reason){ showToast('Select the reason for the loss.','error'); return; }
+        updates.lossReason = reason;
+        updates.lostDate   = todayISO();
+
+        if(reason === 'Technician Negligence'){
+          const quote = parseFloat(b.amountCharged)||0;
+          if(quote <= 0){ showToast('Set the quoted amount (Amount Charged) first.','error'); return; }
+          if(!b.technicianAssigned){ showToast('Assign a technician first.','error'); return; }
+
+          if(pen && pen.status !== 'Waived'){
+            // penalty already recorded for this job: keep it, keep its status
+            updates.status = pen.status;
+            toastMsg = 'Marked as lost. Existing penalty kept ('+pen.status+').';
+          } else {
+            const payload = {
+              bookingId: b.id, jobRef: jobRef(b.id),
+              clientName: b.clientName||'', clientPhone: b.clientPhone||'',
+              technicianName: b.technicianAssigned, branch: b.branch||'',
+              quoteValue: quote, penaltyPercent: PENALTY_RATE, penaltyAmount: penaltyOf(quote),
+              reason: 'Technician Negligence', status: 'Pending Deduction',
+              lostDate: updates.lostDate,
+              createdAt: serverTimestamp(), createdBy: currentUserEmail,
+              updatedAt: serverTimestamp(), updatedBy: currentUserEmail
+            };
+            await setDoc(doc(db,'joblosses',b.id), payload);
+            penalties[b.id] = { id:b.id, ...payload };
+            updates.status = 'Pending Deduction';
+            toastMsg = 'Marked as lost. Penalty of KES '+fKES(payload.penaltyAmount)+' recorded (Pending Deduction).';
+          }
+        } else if(pen && pen.status === 'Pending Deduction'){
+          if(!confirm('This job has a pending negligence penalty. Losing it for another reason will waive that penalty. Continue?')) return;
+          await setPenaltyStatus(pen,'Waived');
+        }
+
+      } else if(PENALTY_STATES.includes(newStatus)){
+        if(!pen){ showToast('No penalty on this job. Mark it Lost with reason Technician Negligence first.','error'); return; }
+        if(newStatus === 'Waived' && !confirm('Waive this penalty? The technician will no longer be charged.')) return;
+        await setPenaltyStatus(pen, newStatus);
+        toastMsg = 'Penalty marked '+newStatus+'.';
+
+      } else if(pen && pen.status === 'Pending Deduction'){
+        if(!confirm('This job has a pending job loss penalty. Moving it to '+newStatus+' will waive the penalty. Continue?')) return;
+        await setPenaltyStatus(pen,'Waived');
+        toastMsg = 'Status updated to '+newStatus+'. Penalty waived.';
+      }
+
+      await updateDoc(doc(db,'bookings',b.id), updates);
+      Object.assign(b, updates);
+      const idx = allBookings.findIndex(x=>x.id===b.id);
+      if(idx>-1) Object.assign(allBookings[idx], updates);
       applyFilters();
-      showToast('Status updated to '+newStatus+'.','success');
+      showToast(toastMsg,'success');
       document.getElementById('modalBg').classList.remove('open');
-    } catch(e){ showToast('Failed to update status.','error'); }
+      activeBooking = null;
+    } catch(e){ console.error(e); showToast('Failed to update status.','error'); }
   });
 
   document.getElementById('deleteBtn').addEventListener('click', async ()=>{
     if(!activeBooking) return;
-    if(!confirm('Delete this booking? This cannot be undone.')) return;
+    if(!confirm('Delete this booking? This cannot be undone.'+(penalties[activeBooking.id]?' Its job loss penalty record will be kept for auditing.':''))) return;
     try{
       await deleteDoc(doc(db,'bookings',activeBooking.id));
       allBookings=allBookings.filter(b=>b.id!==activeBooking.id);
