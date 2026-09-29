@@ -337,6 +337,17 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
 .status-badge.paid{background:rgba(0,200,83,0.15);color:#69F0AE;border:1px solid rgba(0,200,83,0.25)}
 .status-badge.awaiting-verification{background:rgba(96,165,250,0.1);color:#60A5FA;border:1px solid rgba(96,165,250,0.2)}
 .status-badge.resolved{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
+.status-badge.lost{background:rgba(255,82,82,0.1);color:#FF8A80;border:1px solid rgba(255,82,82,0.25)}
+.status-badge.pending-deduction{background:rgba(251,146,60,0.12);color:#FB923C;border:1px solid rgba(251,146,60,0.28)}
+.status-badge.deducted{background:rgba(192,132,252,0.12);color:#C084FC;border:1px solid rgba(192,132,252,0.28)}
+.status-badge.waived{background:rgba(148,163,184,0.12);color:#94A3B8;border:1px solid rgba(148,163,184,0.25)}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--green-border);gap:10px;flex-wrap:wrap}
+.pagination-info{font-size:12px;color:var(--text-dim)}
+.pagination-btns{display:flex;gap:6px;flex-wrap:wrap}
+.page-btn{padding:6px 12px;border:1px solid var(--green-border);border-radius:6px;font-size:12px;font-weight:600;color:var(--text-dim);background:transparent;cursor:pointer;transition:all 0.2s}
+.page-btn:hover:not(:disabled){border-color:var(--green-border-strong);color:var(--green)}
+.page-btn:disabled{opacity:0.35;cursor:not-allowed}
+.page-btn.active{background:var(--green-dim);color:#050D05;border-color:var(--green-dim)}
 
 .penalty-tag{
   display:inline-block;padding:3px 10px;border-radius:100px;
@@ -657,6 +668,10 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
           </tbody>
         </table>
       </div>
+      <div class="pagination" id="fuPagination">
+        <span class="pagination-info" id="fuPaginationInfo"></span>
+        <div class="pagination-btns" id="fuPaginationBtns"></div>
+      </div>
     </div>
 
   </div>
@@ -668,6 +683,9 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
   import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
   const FOLLOWUP_PENALTY = 250;
+  const FU_PER_PAGE = 15;
+  let fuPage = 1;
+  let fuRows = [];
 
   const firebaseConfig = {
     apiKey: "AIzaSyBxi76PxDat-G5bjcUQ2MmPe0mGcTE-izs",
@@ -723,7 +741,7 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
     await loadDashboard(e.target.value);
   });
 
-  async function loadDashboard(branch) {
+  async function loadDashboard(branch, keepPage = false) {
     try {
       const snap     = await getDocs(collection(db, 'bookings'));
       let bookings   = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -771,6 +789,7 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
 
     const recent = [...bookings].sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0)).slice(0,8);
       renderRecent(recent);
+      if (!keepPage) fuPage = 1;
       renderFollowUps(fuUnresolvedList);
       renderTechnicianRanking(fuUnresolvedList);
 
@@ -803,7 +822,7 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
     if (!confirm('Mark this follow up as Resolved? The KSh 250 penalty will be removed.')) return;
     try {
       await updateDoc(doc(db, 'bookings', id), { status: 'Resolved', resolvedAt: new Date() });
-      await loadDashboard(document.getElementById('branchFilter').value);
+      await loadDashboard(document.getElementById('branchFilter').value, true);
     } catch(err) {
       console.error('Resolve error:', err);
       alert('Could not resolve this follow up. Please try again.');
@@ -831,13 +850,47 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
       </tr>`).join('');
   }
 
+  function buildPager(btns,page,pages,go){
+    btns.innerHTML='';
+    if(pages<=1) return;
+    const mk=(label,disabled,cls,fn)=>{
+      const b=document.createElement('button');
+      b.className='page-btn'+(cls?' '+cls:'');
+      b.textContent=label;b.disabled=disabled;
+      b.addEventListener('click',fn);
+      btns.appendChild(b);
+    };
+    mk('Prev',page===1,'',()=>go(page-1));
+    for(let i=1;i<=pages;i++){
+      if(pages>7&&i>2&&i<pages-1&&Math.abs(i-page)>1) continue;
+      mk(String(i),false,i===page?'active':'',()=>go(i));
+    }
+    mk('Next',page===pages,'',()=>go(page+1));
+  }
+
   function renderFollowUps(bookings) {
+    fuRows = bookings;
+    drawFollowUps();
+  }
+
+  function drawFollowUps() {
     const tbody = document.getElementById('followUpsBody');
-    if (bookings.length === 0) {
+    const info  = document.getElementById('fuPaginationInfo');
+    const btns  = document.getElementById('fuPaginationBtns');
+    const total = fuRows.length;
+    const pages = Math.max(1, Math.ceil(total / FU_PER_PAGE));
+    if (fuPage > pages) fuPage = pages;
+
+    if (total === 0) {
       tbody.innerHTML = '<tr class="state-row"><td colspan="8">No unresolved follow ups. All clear.</td></tr>';
+      info.textContent = '';
+      btns.innerHTML = '';
       return;
     }
-    tbody.innerHTML = bookings.map(b => `
+
+    const start = (fuPage - 1) * FU_PER_PAGE;
+    const end   = Math.min(start + FU_PER_PAGE, total);
+    tbody.innerHTML = fuRows.slice(start, end).map(b => `
       <tr>
         <td class="td-client">${esc(b.clientName||'--')}</td>
         <td>${esc(b.clientPhone||'--')}</td>
@@ -850,6 +903,8 @@ tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middl
               ? `<button class="btn-resolve" onclick="resolveFollowUp('${b.id}')">Resolve</button>`
               : `<span class="awaiting-tag">Awaiting technician</span>`}</td>
       </tr>`).join('');
+    info.textContent = `Showing ${start + 1} to ${end} of ${total}`;
+    buildPager(btns, fuPage, pages, p => { fuPage = p; drawFollowUps(); });
   }
 
   function statusClass(status) {
