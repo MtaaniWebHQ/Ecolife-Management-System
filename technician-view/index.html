@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ecolife System | My Jobs</title>
+<title>Ecolife System | Reports</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -12,7 +12,8 @@
   --bg:#060D06;
   --bg-card:#0C160C;
   --bg-input:#0F1A0F;
-  --topbar-bg:#080F08;
+  --sidebar-bg:#080F08;
+  --topbar-bg:#0A120A;
   --green:#00E676;
   --green-dim:#00C853;
   --green-glow:rgba(0,230,118,0.08);
@@ -24,6 +25,7 @@
   --text:#C8E6C9;
   --text-dim:#8BAD8F;
   --error:#FF5252;
+  --sidebar-w:240px;
 }
 
 html,body{height:100%;font-family:'Inter',sans-serif;color:var(--text);background:var(--bg)}
@@ -31,257 +33,387 @@ html,body{height:100%;font-family:'Inter',sans-serif;color:var(--text);backgroun
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 10% 10%,rgba(0,230,118,0.05) 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,rgba(0,200,83,0.06) 0%,transparent 50%);pointer-events:none;z-index:0}
 body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,230,118,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,230,118,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
 
-/* TOPBAR */
-.topbar{position:fixed;top:0;left:0;right:0;height:60px;background:var(--topbar-bg);border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:100}
-.topbar-brand{display:flex;align-items:center;gap:10px}
-.topbar-brand img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:1.5px solid var(--green-border-strong);box-shadow:0 0 10px rgba(0,230,118,0.15)}
-.topbar-brand-text{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:var(--green);letter-spacing:0.06em;line-height:1.2}
-.topbar-brand-text span{display:block;font-size:10px;font-weight:500;color:var(--gray);letter-spacing:0.1em;text-transform:uppercase}
-.topbar-right{display:flex;align-items:center;gap:12px}
-.tech-name-badge{font-size:12px;color:var(--text-dim);font-weight:500}
-.btn-signout{padding:7px 14px;background:rgba(255,82,82,0.06);border:1px solid rgba(255,82,82,0.15);border-radius:6px;color:rgba(255,130,130,0.7);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--sidebar-bg);border-right:1px solid var(--green-border);display:flex;flex-direction:column;z-index:100;transition:transform 0.3s}
+.sidebar-brand{padding:22px 20px 18px;border-bottom:1px solid var(--green-border);display:flex;align-items:center;gap:12px}
+.sidebar-brand img{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1.5px solid var(--green-border-strong);flex-shrink:0;box-shadow:0 0 12px rgba(0,230,118,0.15)}
+.brand-text{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:var(--green);letter-spacing:0.06em;line-height:1.2}
+.brand-text span{display:block;font-weight:500;font-size:10px;color:var(--gray);letter-spacing:0.1em;text-transform:uppercase}
+.sidebar-nav{flex:1;padding:14px 0;overflow-y:auto}
+.nav-section-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dim);padding:10px 20px 6px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 20px;cursor:pointer;color:var(--text-dim);font-size:15px;font-weight:500;transition:all 0.2s;border-left:2px solid transparent;text-decoration:none}
+.nav-item:hover{background:var(--green-glow);color:var(--white)}
+.nav-item.active{background:rgba(0,230,118,0.08);color:var(--green);border-left-color:var(--green)}
+.nav-icon{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--green-border)}
+.user-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:rgba(0,230,118,0.1);border:1px solid var(--green-border-strong);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--green);flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:14px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:10px;color:var(--gray);letter-spacing:0.08em;text-transform:uppercase}
+.btn-signout{width:100%;padding:8px;background:rgba(255,82,82,0.06);border:1px solid rgba(255,82,82,0.15);border-radius:7px;color:rgba(255,130,130,0.7);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-signout:hover{background:rgba(255,82,82,0.12);border-color:rgba(255,82,82,0.3);color:#FF8A80}
 
-/* MAIN */
-.main{padding-top:60px;min-height:100vh;position:relative;z-index:1}
-.main-inner{padding:20px;max-width:900px;margin:0 auto}
+.topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:60px;background:var(--topbar-bg);border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:90;gap:12px}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;color:var(--gray)}
+.menu-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--white);letter-spacing:0.04em}
+.btn-print{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:rgba(0,230,118,0.08);color:var(--green);font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;border-radius:7px;border:1px solid var(--green-border-strong);cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;text-transform:uppercase}
+.btn-print:hover{background:rgba(0,230,118,0.15)}
+.btn-print svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-/* WELCOME BAND */
-.welcome-band{background:linear-gradient(135deg,rgba(0,230,118,0.06) 0%,rgba(0,200,83,0.03) 100%);border:1px solid var(--green-border);border-radius:12px;padding:22px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;position:relative;overflow:hidden}
-.welcome-band::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(0,230,118,0.08) 0%,transparent 70%);pointer-events:none}
-.welcome-text h2{font-family:'Montserrat',sans-serif;font-weight:800;font-size:19px;color:var(--white);margin-bottom:4px;letter-spacing:0.02em}
-.welcome-text p{font-size:14px;color:var(--text-dim)}
-.welcome-badge{background:rgba(0,230,118,0.08);border:1px solid var(--green-border-strong);border-radius:8px;padding:10px 16px;text-align:center}
-.welcome-badge-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px}
-.welcome-badge-value{font-family:'Montserrat',sans-serif;font-weight:800;font-size:17px;color:var(--green)}
+.main{margin-left:var(--sidebar-w);padding-top:60px;min-height:100vh;position:relative;z-index:1}
+.main-inner{padding:24px}
 
-/* STAT CARDS 2x2 */
-.cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-.stat-card{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;padding:18px 16px;position:relative;overflow:hidden;transition:all 0.2s}
-.stat-card:hover{border-color:var(--green-border-strong);box-shadow:0 0 20px rgba(0,230,118,0.08);transform:translateY(-1px)}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green-dim),transparent);opacity:0.5}
-.stat-icon{width:32px;height:32px;border-radius:8px;background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.15);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
-.stat-icon svg{width:15px;height:15px;fill:none;stroke:var(--green);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.stat-label{font-size:10px;color:var(--text-dim);font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.1em}
-.stat-value{font-family:'Montserrat',sans-serif;font-weight:800;font-size:28px;color:var(--white);line-height:1}
-.stat-sub{font-size:11px;color:var(--gray);margin-top:6px}
-
-/* FILTERS */
-.filter-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.filter-label{font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:0.08em}
-.filter-select,.filter-date{padding:8px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:12.5px;color:var(--text);background:var(--bg-card);outline:none;cursor:pointer;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236B8F71' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:28px}
+/* FILTER CARD */
+.filter-card{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;padding:18px 20px;margin-bottom:24px}
+.filter-card-title{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.filter-group{display:flex;flex-direction:column;gap:5px;min-width:130px}
+.filter-group label{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em}
+.filter-select,.filter-date{padding:9px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:12.5px;color:var(--text);background:var(--bg-input);outline:none;cursor:pointer;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236B8F71' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:28px}
 .filter-date{background-image:none;padding-right:12px}
 .filter-select:focus,.filter-date:focus{border-color:var(--green-dim)}
+.btn-apply{padding:9px 20px;background:linear-gradient(135deg,#00C853,#00A846);color:#050D05;font-family:'Montserrat',sans-serif;font-weight:800;font-size:12px;border:none;border-radius:7px;cursor:pointer;transition:all 0.2s;white-space:nowrap;align-self:flex-end;text-transform:uppercase;letter-spacing:0.04em}
+.btn-apply:hover{background:linear-gradient(135deg,#00E676,#00C853);box-shadow:0 4px 14px rgba(0,200,83,0.3)}
 
-/* JOB CARDS */
-.jobs-wrap{display:flex;flex-direction:column;gap:10px}
+/* SUMMARY */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.sum-card{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;padding:16px;position:relative;overflow:hidden;transition:all 0.2s}
+.sum-card:hover{border-color:var(--green-border-strong);box-shadow:0 0 16px rgba(0,230,118,0.07)}
+.sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green-dim),transparent);opacity:0.5}
+.sum-label{font-size:10px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.sum-value{font-family:'Montserrat',sans-serif;font-weight:800;font-size:24px;color:var(--white);line-height:1}
+.sum-sub{font-size:11px;color:var(--gray);margin-top:4px}
 
-.job-card{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;overflow:hidden;transition:all 0.2s;cursor:pointer}
-.job-card:hover{border-color:var(--green-border-strong);box-shadow:0 0 16px rgba(0,230,118,0.06)}
-.job-card-top{padding:16px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.job-client-name{font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--white);margin-bottom:6px}
-.job-meta{font-size:12px;color:var(--text-dim);display:flex;flex-wrap:wrap;gap:6px 14px}
-.job-meta-item{display:flex;align-items:center;gap:4px}
-.job-meta-item svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;color:var(--gray)}
-.job-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
-.job-amount{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:var(--white)}
+/* REPORT SECTIONS */
+.report-section{background:var(--bg-card);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.report-section-header{padding:14px 20px;border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between}
+.report-section-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--white);letter-spacing:0.04em}
+.report-count{font-size:11px;color:var(--text-dim);font-weight:500}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:500px}
+thead th{background:rgba(0,230,118,0.04);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);padding:11px 16px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--green-border)}
+tbody tr{border-bottom:1px solid rgba(0,230,118,0.06);transition:background 0.15s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--green-glow)}
+tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middle}
+.td-name{font-weight:600;color:var(--white)}
+.td-amount{font-family:'Montserrat',sans-serif;font-weight:700;color:var(--white)}
+.td-balance{font-family:'Montserrat',sans-serif;font-weight:700;color:#FF8A80}
+.td-balance.clear{color:var(--green)}
+.td-rank{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:var(--green);width:32px}
 
-.status-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:0.06em;white-space:nowrap}
+.progress-wrap{display:flex;align-items:center;gap:8px}
+.progress-bar-bg{flex:1;height:5px;background:rgba(0,230,118,0.1);border-radius:3px;overflow:hidden;min-width:50px}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--green-dim),var(--green));border-radius:3px;transition:width 0.4s}
+.progress-pct{font-size:11px;color:var(--text-dim);font-weight:600;white-space:nowrap}
+
+.status-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;white-space:nowrap}
 .status-badge.pending{background:rgba(251,183,36,0.1);color:#FBB724;border:1px solid rgba(251,183,36,0.2)}
 .status-badge.assigned{background:rgba(59,130,246,0.1);color:#60A5FA;border:1px solid rgba(59,130,246,0.2)}
 .status-badge.completed{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
 .status-badge.paid{background:rgba(0,200,83,0.15);color:#69F0AE;border:1px solid rgba(0,200,83,0.25)}
-.status-badge.awaiting-verification{background:rgba(96,165,250,0.1);color:#60A5FA;border:1px solid rgba(96,165,250,0.2)}
-.status-badge.resolved{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
+.status-badge.completed-awaiting-verification{background:rgba(96,165,250,0.12);color:#60A5FA;border:1px solid rgba(96,165,250,0.25)}
+.status-badge.resolved{background:rgba(0,230,118,0.15);color:var(--green);border:1px solid rgba(0,230,118,0.3)}
 .status-badge.lost{background:rgba(255,82,82,0.1);color:#FF8A80;border:1px solid rgba(255,82,82,0.25)}
 .status-badge.pending-deduction{background:rgba(251,146,60,0.12);color:#FB923C;border:1px solid rgba(251,146,60,0.28)}
 .status-badge.deducted{background:rgba(192,132,252,0.12);color:#C084FC;border:1px solid rgba(192,132,252,0.28)}
 .status-badge.waived{background:rgba(148,163,184,0.12);color:#94A3B8;border:1px solid rgba(148,163,184,0.25)}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--green-border);gap:10px;flex-wrap:wrap}
+.pagination-info{font-size:12px;color:var(--text-dim)}
+.pagination-btns{display:flex;gap:6px;flex-wrap:wrap}
+.page-btn{padding:6px 12px;border:1px solid var(--green-border);border-radius:6px;font-size:12px;font-weight:600;color:var(--text-dim);background:transparent;cursor:pointer;transition:all 0.2s}
+.page-btn:hover:not(:disabled){border-color:var(--green-border-strong);color:var(--green)}
+.page-btn:disabled{opacity:0.35;cursor:not-allowed}
+.page-btn.active{background:var(--green-dim);color:#050D05;border-color:var(--green-dim)}
+.pen-actions{display:flex;gap:6px;flex-wrap:nowrap}
+.pen-btn{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;background:rgba(0,230,118,0.08);color:var(--green);border:1px solid var(--green-border-strong);transition:all 0.2s}
+.pen-btn:hover{background:rgba(0,230,118,0.16)}
+.pen-btn.waive{background:rgba(148,163,184,0.1);color:#94A3B8;border-color:rgba(148,163,184,0.3)}
+.pen-btn.waive:hover{background:rgba(148,163,184,0.2)}
+.pen-btn.pend{background:rgba(251,146,60,0.1);color:#FB923C;border-color:rgba(251,146,60,0.3)}
+.pen-btn.pend:hover{background:rgba(251,146,60,0.2)}
 
-.pen-section{margin-top:28px}
-.pen-header h3{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--white);margin-bottom:4px;letter-spacing:0.02em}
-.pen-header p{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin-bottom:14px}
-.pen-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.pen-sum{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;padding:12px 14px}
-.pen-sum-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:5px}
-.pen-sum-value{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--white)}
-.pen-sum-sub{font-size:10.5px;color:var(--gray);margin-top:3px}
-.pen-table-wrap{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;overflow:hidden}
-.pen-scroll{overflow-x:auto}
-.pen-table{width:100%;border-collapse:collapse;min-width:780px}
-.pen-table th{background:rgba(0,230,118,0.04);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);padding:11px 14px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--green-border)}
-.pen-table td{padding:12px 14px;font-size:13.5px;color:var(--text);border-bottom:1px solid rgba(0,230,118,0.06);white-space:nowrap}
-.pen-table tr:last-child td{border-bottom:none}
-.pen-table .pen-amt{font-family:'Montserrat',sans-serif;font-weight:700;color:var(--white)}
-.pen-table .pen-due{font-family:'Montserrat',sans-serif;font-weight:700;color:#FF8A80}
-.pen-empty td{text-align:center;color:var(--gray);padding:32px 14px;font-size:14px;white-space:normal}
-.locked-note{font-size:12px;color:var(--text-dim);line-height:1.5}
-@media(max-width:600px){.pen-summary{grid-template-columns:1fr}}
+.empty-row td{text-align:center;color:var(--gray);padding:32px;font-size:14px}
 
-.penalty-tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;background:rgba(255,82,82,0.1);color:var(--error);border:1px solid rgba(255,82,82,0.22)}
-.btn-mark-complete{padding:8px 16px;background:linear-gradient(135deg,#60A5FA,#3B82F6);color:#04101F;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;border:none;border-radius:7px;cursor:pointer;transition:all 0.2s;white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em}
-.btn-mark-complete:hover{background:linear-gradient(135deg,#7DB6FF,#60A5FA)}
-.followup-note{font-size:12px;color:var(--text-dim);line-height:1.5}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99}
 
-.job-card-body{padding:0 18px 16px;border-top:1px solid var(--green-border);display:none;padding-top:14px}
-.job-card.expanded .job-card-body{display:block}
-
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.detail-item .detail-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px}
-.detail-item .detail-value{font-size:14px;color:var(--white);font-weight:500}
-.detail-full{grid-column:span 2}
-
-.balance-pill{display:inline-block;padding:3px 10px;border-radius:100px;font-size:12px;font-weight:700;background:rgba(255,82,82,0.1);color:#FF8A80;border:1px solid rgba(255,82,82,0.2)}
-.balance-pill.clear{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
-
-.status-row{display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--green-border);flex-wrap:wrap}
-.status-row label{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap}
-.status-row select{flex:1;min-width:130px;padding:8px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:15px;color:var(--text);background:var(--bg-input);outline:none;-webkit-appearance:none;appearance:none}
-.status-row select:focus{border-color:var(--green-dim)}
-.btn-update{padding:8px 16px;background:linear-gradient(135deg,#00C853,#00A846);color:#050D05;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;border:none;border-radius:7px;cursor:pointer;transition:all 0.2s;white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em}
-.btn-update:hover{background:linear-gradient(135deg,#00E676,#00C853)}
-
-.empty-state{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;padding:48px 24px;text-align:center}
-.empty-state p{font-size:14px;color:var(--gray)}
-
-.toast{display:none;position:fixed;top:76px;right:20px;z-index:999;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:320px}
-.toast.success{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.25);display:block}
-.toast.error{background:rgba(255,82,82,0.1);color:#FF8A80;border:1px solid rgba(255,82,82,0.25);display:block}
-
-@media(max-width:600px){
-  .main-inner{padding:16px}
-  .welcome-band{padding:16px}
-  .detail-grid{grid-template-columns:1fr}
-  .detail-full{grid-column:span 1}
-  .topbar-brand-text span{display:none}
-  .tech-name-badge{display:none}
-  .cards-grid{grid-template-columns:1fr 1fr}
+@media print{
+  .sidebar,.topbar,.filter-card,.sidebar-overlay,.btn-print,.menu-toggle{display:none!important}
+  .main{margin-left:0;padding-top:0;background:#fff}
+  .main-inner{padding:0}
+  body{background:#fff;color:#111}
+  .report-section{break-inside:avoid;border:1px solid #ccc;margin-bottom:16px;background:#fff}
+  .summary-grid{grid-template-columns:repeat(4,1fr)}
+  thead th{background:#f3f4f6;color:#374151}
+  tbody td{color:#111}
+  .td-name,.td-amount{color:#111}
+  .sum-value{color:#111}
 }
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block}
+  .topbar{left:0}
+  .main{margin-left:0}
+  .menu-toggle{display:flex}
+  .main-inner{padding:16px}
+  .filter-row{gap:8px}
+  .filter-group{min-width:110px}
+}
+@media print{.pagination,.pen-col-action{display:none!important}}
 </style>
 </head>
 <body>
 
-<div class="toast" id="toast"></div>
+<div class="sidebar-overlay" id="overlay"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="https://res.cloudinary.com/hztm3zo8/image/upload/v1782422764/FB_IMG_1781877214514_qq7dt6.jpg" alt="Ecolife">
+    <div class="brand-text">ECOLIFE <span>Operations System</span></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="../dashboard/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="../bookings/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Bookings
+    </a>
+    <a class="nav-item" href="../new-booking/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      New Booking
+    </a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="../technicians/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Technicians
+    </a>
+    <a class="nav-item active" href="../reports/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Reports
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar" id="userAvatar">E</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-role">Admin</div>
+      </div>
+    </div>
+    <button class="btn-signout" id="signOutBtn">
+      <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </button>
+  </div>
+</aside>
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="topbar-brand">
-    <img src="https://res.cloudinary.com/hztm3zo8/image/upload/v1782422764/FB_IMG_1781877214514_qq7dt6.jpg" alt="Ecolife">
-    <div class="topbar-brand-text">ECOLIFE <span>Operations System</span></div>
+  <div class="topbar-left">
+    <button class="menu-toggle" id="menuToggle">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span class="page-title">Reports</span>
   </div>
-  <div class="topbar-right">
-    <span class="tech-name-badge" id="techNameBadge"></span>
-    <button class="btn-signout" id="signOutBtn">Sign Out</button>
-  </div>
+  <button class="btn-print" onclick="window.print()">
+    <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    Print Report
+  </button>
 </div>
 
 <!-- MAIN -->
 <main class="main">
   <div class="main-inner">
 
-    <div class="welcome-band">
-      <div class="welcome-text">
-        <h2 id="welcomeHeading">Welcome back</h2>
-        <p id="welcomeSub">Here are your assigned jobs.</p>
-      </div>
-      <div class="welcome-badge">
-        <div class="welcome-badge-label">Branch</div>
-        <div class="welcome-badge-value" id="techBranchDisplay">Loading...</div>
+    <div class="filter-card">
+      <div class="filter-card-title">Filter Reports</div>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>Period</label>
+          <select class="filter-select" id="filterPeriod">
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>From Date</label>
+          <input class="filter-date" type="date" id="filterFrom">
+        </div>
+        <div class="filter-group">
+          <label>To Date</label>
+          <input class="filter-date" type="date" id="filterTo">
+        </div>
+        <div class="filter-group">
+          <label>Region / Branch</label>
+          <select class="filter-select" id="filterBranch">
+            <option value="all">All Branches</option>
+            <option>Nairobi</option><option>Nakuru</option><option>Eldoret</option><option>Mombasa</option>
+<option>Kisumu</option>
+<option>Kitale</option>
+<option>Ecolife</option>
+
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Technician</label>
+          <select class="filter-select" id="filterTech">
+            <option value="all">All Technicians</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Status</label>
+          <select class="filter-select" id="filterPayment">
+            <option value="all">All Statuses</option>
+            <option value="paid">Fully Paid</option>
+            <option value="partial">Partially Paid</option>
+            <option value="unpaid">Unpaid</option>
+            <option value="Follow Up Visit">Follow Up Visit</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Unresolved">Unresolved</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Penalty Status</label>
+          <select class="filter-select" id="filterPenStatus">
+            <option value="all">All Penalty Statuses</option>
+            <option>Pending Deduction</option>
+            <option>Deducted</option>
+            <option>Waived</option>
+          </select>
+        </div>
+        <button class="btn-apply" id="applyBtn">Generate</button>
       </div>
     </div>
 
-    <div class="cards-grid">
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-        <div class="stat-label">My Jobs</div>
-        <div class="stat-value" id="statTotal">0</div>
-        <div class="stat-sub">Total assigned</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div class="stat-label">Completed</div>
-        <div class="stat-value" id="statCompleted">0</div>
-        <div class="stat-sub">Jobs done</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-        <div class="stat-label">Pending</div>
-        <div class="stat-value" id="statPending">0</div>
-        <div class="stat-sub">In progress</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-        <div class="stat-label">Total Sales</div>
-        <div class="stat-value" id="statSales">0</div>
-        <div class="stat-sub">KES charged</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg></div>
-        <div class="stat-label">Unresolved Follow-Ups</div>
-        <div class="stat-value" id="statFuUnresolved">0</div>
-        <div class="stat-sub">Attracts KSh 250 each</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-        <div class="stat-label">Current Penalty</div>
-        <div class="stat-value" id="statFuPenalty">0</div>
-        <div class="stat-sub">KES until resolved</div>
-      </div>
+    <div class="summary-grid">
+      <div class="sum-card"><div class="sum-label">Total Bookings</div><div class="sum-value" id="sumTotal">0</div><div class="sum-sub" id="sumPeriodLabel">All time</div></div>
+      <div class="sum-card"><div class="sum-label">Total Sales (KES)</div><div class="sum-value" id="sumSales">0</div><div class="sum-sub">Amount charged</div></div>
+      <div class="sum-card"><div class="sum-label">Collected (KES)</div><div class="sum-value" id="sumCollected">0</div><div class="sum-sub">Amount paid</div></div>
+      <div class="sum-card"><div class="sum-label">Outstanding (KES)</div><div class="sum-value" id="sumBalance" style="color:#FF8A80">0</div><div class="sum-sub">Pending balance</div></div>
+      <div class="sum-card"><div class="sum-label">Completed Jobs</div><div class="sum-value" id="sumCompleted" style="color:var(--green)">0</div><div class="sum-sub">Completed and paid</div></div>
+      <div class="sum-card"><div class="sum-label">Pending Jobs</div><div class="sum-value" id="sumPending" style="color:#FBB724">0</div><div class="sum-sub">Pending and assigned</div></div>
     </div>
 
-    <div class="filter-row">
-      <span class="filter-label">Filter:</span>
-      <select class="filter-select" id="filterStatus">
-        <option value="all">All Statuses</option>
-        <option>Pending</option>
-        <option>Completed</option>
-        <option>Completed (Awaiting Verification)</option>
-        <option>Resolved</option>
-        <option>Lost</option>
-        <option>Pending Deduction</option>
-        <option>Deducted</option>
-        <option>Waived</option>
-      </select>
-      <input class="filter-date" type="date" id="filterFrom" placeholder="From">
-      <input class="filter-date" type="date" id="filterTo" placeholder="To">
-      <select class="filter-select" id="filterBranch">
-        <option value="all">All Branches</option>
-        <option>Nairobi</option>
-        <option>Nakuru</option>
-        <option>Eldoret</option>
-        <option>Mombasa</option>
-        <option>Kisumu</option>
-        <option>Kitale</option>
-
-      </select>
-      <select class="filter-select" id="filterPayment">
-        <option value="all">All Payments</option>
-        <option value="paid">Fully Paid</option>
-        <option value="partial">Partial</option>
-        <option value="unpaid">Unpaid</option>
-      </select>
-    </div>
-
-    <div class="jobs-wrap" id="jobsWrap">
-      <div class="empty-state"><p>Loading your jobs...</p></div>
-    </div>
-
-    <div class="pen-section">
-      <div class="pen-header">
-        <h3>Job Loss Penalty</h3>
-        <p>A confirmed job lost through technician negligence carries a 30% penalty of the total quoted value. These records are read-only.</p>
+    <div class="report-section">
+      <div class="report-section-header">
+        <span class="report-section-title">Sales per Technician</span>
+        <span class="report-count" id="techReportCount"></span>
       </div>
-      <div class="pen-summary">
-        <div class="pen-sum"><div class="pen-sum-label">Pending Deduction</div><div class="pen-sum-value" id="penSumPending" style="color:#FB923C">KES 0</div><div class="pen-sum-sub" id="penSumPendingSub">0 jobs</div></div>
-        <div class="pen-sum"><div class="pen-sum-label">Deducted</div><div class="pen-sum-value" id="penSumDeducted" style="color:#C084FC">KES 0</div><div class="pen-sum-sub" id="penSumDeductedSub">0 jobs</div></div>
-        <div class="pen-sum"><div class="pen-sum-label">Waived</div><div class="pen-sum-value" id="penSumWaived" style="color:#94A3B8">KES 0</div><div class="pen-sum-sub" id="penSumWaivedSub">0 jobs</div></div>
-      </div>
-      <div class="pen-table-wrap"><div class="pen-scroll">
-        <table class="pen-table">
-          <thead><tr><th>Date</th><th>Job Ref</th><th>Client</th><th>Total Quote</th><th>Penalty %</th><th>Penalty Amount</th><th>Reason</th><th>Status</th></tr></thead>
-          <tbody id="penBody"><tr class="pen-empty"><td colspan="8">Loading...</td></tr></tbody>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th style="width:32px"></th><th>Technician</th><th>Branch</th><th>Jobs</th><th>Completed</th><th>Sales (KES)</th><th>Collected (KES)</th><th>Outstanding (KES)</th><th>Completion</th></tr></thead>
+          <tbody id="techReportBody"><tr class="empty-row"><td colspan="9">Loading...</td></tr></tbody>
         </table>
-      </div></div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-header">
+        <span class="report-section-title">Follow-up Penalty Report</span>
+        <span class="report-count" id="followupPenaltyCount"></span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Technician</th><th>Follow-ups Assigned</th><th>Completed</th><th>Resolved</th><th>Unresolved</th><th>Total Penalties (KES)</th></tr></thead>
+          <tbody id="followupPenaltyBody"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="report-section" id="jobLossSection">
+      <div class="report-section-header">
+        <span class="report-section-title">Job Loss Penalty Report</span>
+        <span class="report-count" id="penCount"></span>
+      </div>
+      <div style="padding:16px 20px 0">
+        <div class="summary-grid" style="margin-bottom:16px">
+          <div class="sum-card"><div class="sum-label">Jobs Lost</div><div class="sum-value" id="penJobs">0</div><div class="sum-sub">Technician negligence</div></div>
+          <div class="sum-card"><div class="sum-label">Total Quote (KES)</div><div class="sum-value" id="penQuote">0</div><div class="sum-sub">Value of lost jobs</div></div>
+          <div class="sum-card"><div class="sum-label">Total Penalty (KES)</div><div class="sum-value" id="penTotal" style="color:#FF8A80">0</div><div class="sum-sub">30% of quote</div></div>
+          <div class="sum-card"><div class="sum-label">Total Deducted (KES)</div><div class="sum-value" id="penDeducted" style="color:#C084FC">0</div><div class="sum-sub" id="penDeductedSub">0 jobs</div></div>
+          <div class="sum-card"><div class="sum-label">Total Pending (KES)</div><div class="sum-value" id="penPending" style="color:#FB923C">0</div><div class="sum-sub" id="penPendingSub">0 jobs</div></div>
+          <div class="sum-card"><div class="sum-label">Total Waived (KES)</div><div class="sum-value" id="penWaived" style="color:#94A3B8">0</div><div class="sum-sub" id="penWaivedSub">0 jobs</div></div>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table style="min-width:1050px">
+          <thead><tr><th>Date</th><th>Job Ref</th><th>Technician</th><th>Branch</th><th>Client</th><th>Quote (KES)</th><th>%</th><th>Penalty (KES)</th><th>Reason</th><th>Status</th><th class="pen-col-action">Action</th></tr></thead>
+          <tbody id="penBody"><tr class="empty-row"><td colspan="11">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="pagination-info" id="penInfo"></span>
+        <div class="pagination-btns" id="penBtns"></div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-header">
+        <span class="report-section-title">Sales per Region / Branch</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Branch</th><th>Total Jobs</th><th>Completed</th><th>Sales (KES)</th><th>Collected (KES)</th><th>Outstanding (KES)</th><th>Completion Rate</th></tr></thead>
+          <tbody id="branchReportBody"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-header">
+        <span class="report-section-title">Customers per Region</span>
+        <span class="report-count" id="customerRegionCount"></span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Region / Branch</th><th>Total Customers</th><th>Total Jobs</th><th>Total Sales (KES)</th><th>Top Service</th></tr></thead>
+          <tbody id="customerRegionBody"><tr class="empty-row"><td colspan="5">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-header">
+        <span class="report-section-title">Daily Bookings</span>
+        <span class="report-count" id="dailyCount"></span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Date</th><th>Client</th><th>Service</th><th>Branch</th><th>Technician</th><th>Sales (KES)</th><th>Paid (KES)</th><th>Status</th></tr></thead>
+          <tbody id="dailyBody"><tr class="empty-row"><td colspan="8">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="pagination-info" id="dailyInfo"></span>
+        <div class="pagination-btns" id="dailyBtns"></div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-header">
+        <span class="report-section-title">Pending Balances</span>
+        <span class="report-count" id="pendingBalCount"></span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Client</th><th>Phone</th><th>Branch</th><th>Technician</th><th>Service Date</th><th>Charged (KES)</th><th>Paid (KES)</th><th>Balance (KES)</th><th>Status</th></tr></thead>
+          <tbody id="pendingBalBody"><tr class="empty-row"><td colspan="9">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="pagination-info" id="pendingInfo"></span>
+        <div class="pagination-btns" id="pendingBtns"></div>
+      </div>
     </div>
 
   </div>
@@ -290,7 +422,7 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 <script type="module">
   import { initializeApp }    from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc, serverTimestamp }    from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBxi76PxDat-G5bjcUQ2MmPe0mGcTE-izs",
@@ -306,114 +438,72 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
   const auth = getAuth(app);
   const db   = getFirestore(app);
 
-  const FOLLOWUP_PENALTY = 250;
+  let allBookings = [];
+  let allTechs    = [];
+  let allPenalties = [];
+  let currentUserEmail = '';
+  const ADMIN_EMAIL = 'ecolifepestguard@gmail.com';
+  const PENALTY_STATES = ['Pending Deduction','Deducted','Waived'];
+  let penFilter = { branch:'all', tech:'all', from:'', to:'', status:'all' };
 
-  let myJobs   = [];
-  let techName = '';
-  let techData = null;
-  let myPenalties = [];
-  const PENALTY_LOCKED = ['Lost','Pending Deduction','Deducted','Waived'];
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('show');
+  });
+  document.getElementById('overlay').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+  });
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = '../'; return; }
+    if (user.email !== ADMIN_EMAIL) { window.location.href = '../dashboard/'; return; }
+    currentUserEmail = user.email;
+    document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
+    document.getElementById('userName').textContent   = user.email.split('@')[0];
+    await Promise.all([loadBookings(), loadTechs(), loadPenalties()]);
+    populateTechFilter();
+    generateReport();
+  });
 
   document.getElementById('signOutBtn').addEventListener('click', async () => {
     await signOut(auth);
     window.location.href = '../';
   });
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = '../'; return; }
-    const techSnap = await getDocs(collection(db,'technicians'));
-    techSnap.forEach(d => {
-      if(d.data().email===user.email) techData={ id:d.id, ...d.data() };
-    });
-    if(!techData){ window.location.href='../'; return; }
-    techName = techData.name||user.email.split('@')[0];
-    document.getElementById('welcomeHeading').textContent   = 'Welcome, '+techName;
-    document.getElementById('welcomeSub').textContent       = 'Here are your assigned jobs for '+(techData.branch||'your branch')+'.';
-    document.getElementById('techBranchDisplay').textContent = techData.branch||'--';
-    document.getElementById('techNameBadge').textContent    = techName;
-    await loadJobs();
+  document.getElementById('applyBtn').addEventListener('click', generateReport);
+
+  document.getElementById('filterPeriod').addEventListener('change', function(){
+    const today = new Date();
+    const fmt   = d => d.toISOString().split('T')[0];
+    if(this.value==='today'){ document.getElementById('filterFrom').value=fmt(today); document.getElementById('filterTo').value=fmt(today); }
+    else if(this.value==='week'){ const mon=new Date(today); mon.setDate(today.getDate()-today.getDay()+1); document.getElementById('filterFrom').value=fmt(mon); document.getElementById('filterTo').value=fmt(today); }
+    else if(this.value==='month'){ document.getElementById('filterFrom').value=fmt(new Date(today.getFullYear(),today.getMonth(),1)); document.getElementById('filterTo').value=fmt(today); }
+    else{ document.getElementById('filterFrom').value=''; document.getElementById('filterTo').value=''; }
   });
 
-  async function loadJobs(){
-    const snap = await getDocs(collection(db,'bookings'));
-    const all  = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-    myJobs     = all.filter(b => b.technicianAssigned===techName);
-    myJobs.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  async function loadBookings(){ const snap=await getDocs(collection(db,'bookings')); allBookings=snap.docs.map(d=>({id:d.id,...d.data()})); }
+  async function loadPenalties(){ try{ const snap=await getDocs(collection(db,'joblosses')); allPenalties=snap.docs.map(d=>({id:d.id,...d.data()})); }catch(e){ console.error('Could not load job loss penalties',e); allPenalties=[]; } }
+  async function loadTechs(){ const snap=await getDocs(collection(db,'technicians')); allTechs=snap.docs.map(d=>({id:d.id,...d.data()})); }
 
-    // browser notification for new jobs
-    const lastSeen  = parseInt(localStorage.getItem('lastSeen_'+techName)||'0');
-    const newJobs   = myJobs.filter(b => (b.createdAt?.seconds||0)*1000 > lastSeen);
-    localStorage.setItem('lastSeen_'+techName, Date.now().toString());
-
-    if(newJobs.length > 0){
-      if(Notification.permission === 'granted'){
-        new Notification('Ecolife System', {
-          body: 'You have '+newJobs.length+' new job'+(newJobs.length>1?'s':'')+' assigned to you.'
-        });
-      } else if(Notification.permission !== 'denied'){
-        Notification.requestPermission().then(permission => {
-          if(permission === 'granted'){
-            new Notification('Ecolife System', {
-              body: 'You have '+newJobs.length+' new job'+(newJobs.length>1?'s':'')+' assigned to you.'
-            });
-          }
-        });
-      }
-    }
-
-    try{
-      const ps = await getDocs(collection(db,'joblosses'));
-      myPenalties = ps.docs.map(d => ({ id:d.id, ...d.data() }))
-        .filter(p => p.technicianName === techName)
-        .sort((a,b) => (b.lostDate||'').localeCompare(a.lostDate||''));
-    } catch(e){ console.error('Could not load job loss penalties', e); myPenalties = []; }
-    renderPenalties();
-
-    applyFilters();
+  function populateTechFilter(){
+    const sel=document.getElementById('filterTech');
+    allTechs.forEach(t=>{ const opt=document.createElement('option'); opt.value=t.name; opt.textContent=t.name; sel.appendChild(opt); });
   }
 
-  function renderPenalties(){
-    const sum = st => myPenalties.filter(p=>p.status===st).reduce((t,p)=>t+(parseFloat(p.penaltyAmount)||0),0);
-    const cnt = st => myPenalties.filter(p=>p.status===st).length;
-    const jobsTxt = n => n+' job'+(n!==1?'s':'');
-    document.getElementById('penSumPending').textContent    = 'KES '+fKES(sum('Pending Deduction'));
-    document.getElementById('penSumDeducted').textContent   = 'KES '+fKES(sum('Deducted'));
-    document.getElementById('penSumWaived').textContent     = 'KES '+fKES(sum('Waived'));
-    document.getElementById('penSumPendingSub').textContent  = jobsTxt(cnt('Pending Deduction'));
-    document.getElementById('penSumDeductedSub').textContent = jobsTxt(cnt('Deducted'));
-    document.getElementById('penSumWaivedSub').textContent   = jobsTxt(cnt('Waived'));
-    const tbody = document.getElementById('penBody');
-    if(myPenalties.length===0){
-      tbody.innerHTML = '<tr class="pen-empty"><td colspan="8">No job loss penalties. Keep it up.</td></tr>';
-      return;
-    }
-    tbody.innerHTML = myPenalties.map(p => `<tr>
-      <td>${fDate(p.lostDate)}</td>
-      <td>${esc(p.jobRef||('JOB-'+String(p.bookingId||p.id).slice(0,6).toUpperCase()))}</td>
-      <td>${esc(p.clientName||'--')}</td>
-      <td class="pen-amt">KES ${fKES(p.quoteValue)}</td>
-      <td>${esc(p.penaltyPercent||30)}%</td>
-      <td class="pen-due">KES ${fKES(p.penaltyAmount)}</td>
-      <td>${esc(p.reason||'Technician Negligence')}</td>
-      <td><span class="status-badge ${statusClass(p.status)}">${esc(p.status||'Pending Deduction')}</span></td>
-    </tr>`).join('');
-  }
-
-  ['filterStatus','filterFrom','filterTo','filterBranch','filterPayment'].forEach(id => {
-    document.getElementById(id).addEventListener('change',applyFilters);
-  });
-
-  function applyFilters(){
-    const status  = document.getElementById('filterStatus').value;
+  function generateReport(){
+    const branch  = document.getElementById('filterBranch').value;
     const from    = document.getElementById('filterFrom').value;
     const to      = document.getElementById('filterTo').value;
-    const branch  = document.getElementById('filterBranch').value;
+    const tech    = document.getElementById('filterTech').value;
     const payment = document.getElementById('filterPayment').value;
-    const filtered = myJobs.filter(b => {
-      const matchStatus  = status==='all'||b.status===status;
-      const matchFrom    = !from||(b.serviceDate&&b.serviceDate>=from);
-      const matchTo      = !to||(b.serviceDate&&b.serviceDate<=to);
-      const matchBranch  = branch==='all'||b.branch===branch;
+    const period  = document.getElementById('filterPeriod').value;
+
+    let filtered = allBookings.filter(b => {
+      const matchBranch = branch==='all'||b.branch===branch;
+      const matchFrom   = !from||(b.serviceDate&&b.serviceDate>=from);
+      const matchTo     = !to||(b.serviceDate&&b.serviceDate<=to);
+      const matchTech   = tech==='all'||b.technicianAssigned===tech;
       const charged=parseFloat(b.amountCharged)||0;
       const paid=parseFloat(b.amountPaid)||0;
       const balance=charged-paid;
@@ -421,179 +511,328 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
       if(payment==='paid')    matchPayment=balance<=0&&charged>0;
       if(payment==='partial') matchPayment=paid>0&&balance>0;
       if(payment==='unpaid')  matchPayment=paid===0&&charged>0;
-      return matchStatus&&matchFrom&&matchTo&&matchBranch&&matchPayment;
+      if(payment==='Follow Up Visit')  
+  matchPayment = b.status === 'Follow Up Visit';
+      if(payment==='Resolved')   matchPayment = b.status === 'Resolved';
+      if(payment==='Unresolved') matchPayment = b.serviceRequired==='Follow Up Visit' && b.status !== 'Resolved';
+      return matchBranch&&matchFrom&&matchTo&&matchTech&&matchPayment;
     });
-    updateStats(filtered);
-    renderJobs(filtered);
+
+    const labels={today:'Today',week:'This week',month:'This month',all:'All time'};
+    document.getElementById('sumPeriodLabel').textContent=labels[period]||'All time';
+
+    const followUpData = allBookings.filter(b => {
+      const matchBranch = branch==='all'||b.branch===branch;
+      const matchFrom   = !from||(b.serviceDate&&b.serviceDate>=from);
+      const matchTo     = !to||(b.serviceDate&&b.serviceDate<=to);
+      const matchTech   = tech==='all'||b.technicianAssigned===tech;
+      return b.serviceRequired==='Follow Up Visit'&&matchBranch&&matchFrom&&matchTo&&matchTech;
+    });
+
+    penFilter = { branch, tech, from, to, status: document.getElementById('filterPenStatus').value };
+    renderSummary(filtered);
+    renderTechReport(filtered);
+    renderBranchReport(filtered);
+    renderCustomerRegion(filtered);
+    renderDailyReport(filtered);
+    renderPendingBalances(filtered);
+    renderFollowupPenaltyReport(followUpData);
+    renderPenaltyReport(true);
   }
 
-  function updateStats(jobs){
-    const completed = jobs.filter(b=>b.status==='Completed'||b.status==='Paid').length;
-    const pending   = jobs.filter(b=>b.status==='Pending'||b.status==='Assigned').length;
-    const sales     = jobs.reduce((s,b)=>s+(parseFloat(b.amountCharged)||0),0);
-    const fuUnresolved = jobs.filter(b=>b.serviceRequired==='Follow Up Visit'&&b.status!=='Resolved').length;
-    document.getElementById('statTotal').textContent      = jobs.length;
-    document.getElementById('statCompleted').textContent  = completed;
-    document.getElementById('statPending').textContent    = pending;
-    document.getElementById('statSales').textContent      = fKES(sales);
-    document.getElementById('statFuUnresolved').textContent = fuUnresolved;
-    document.getElementById('statFuPenalty').textContent    = fKES(fuUnresolved * FOLLOWUP_PENALTY);
+  function renderSummary(data){
+    const total=data.length;
+    const sales=data.reduce((s,b)=>s+(parseFloat(b.amountCharged)||0),0);
+    const collected=data.reduce((s,b)=>s+(parseFloat(b.amountPaid)||0),0);
+    const balance=sales-collected;
+    const completed=data.filter(b=>b.status==='Completed'||b.status==='Paid').length;
+    const pending=data.filter(b=>b.status==='Pending'||b.status==='Assigned').length;
+    document.getElementById('sumTotal').textContent=total;
+    document.getElementById('sumSales').textContent=fKES(sales);
+    document.getElementById('sumCollected').textContent=fKES(collected);
+    document.getElementById('sumBalance').textContent=fKES(balance);
+    document.getElementById('sumCompleted').textContent=completed;
+    document.getElementById('sumPending').textContent=pending;
   }
 
-  function renderJobs(jobs){
-    const wrap = document.getElementById('jobsWrap');
-    if(jobs.length===0){
-      wrap.innerHTML='<div class="empty-state"><p>No jobs found for the selected filters.</p></div>';
+  function renderTechReport(data){
+    const tbody=document.getElementById('techReportBody');
+    const map={};
+    data.forEach(b=>{ const name=b.technicianAssigned||'Unassigned'; if(!map[name]) map[name]={jobs:[],branch:''}; map[name].jobs.push(b); });
+    allTechs.forEach(t=>{ if(map[t.name]) map[t.name].branch=t.branch||''; });
+    const rows=Object.entries(map).map(([name,obj])=>{
+      const jobs=obj.jobs;
+      const completed=jobs.filter(b=>b.status==='Completed'||b.status==='Paid').length;
+      const sales=jobs.reduce((s,b)=>s+(parseFloat(b.amountCharged)||0),0);
+      const collected=jobs.reduce((s,b)=>s+(parseFloat(b.amountPaid)||0),0);
+      const balance=sales-collected;
+      const rate=jobs.length>0?Math.round((completed/jobs.length)*100):0;
+      return{name,branch:obj.branch,jobs:jobs.length,completed,sales,collected,balance,rate};
+    }).sort((a,b)=>b.sales-a.sales);
+    document.getElementById('techReportCount').textContent=rows.length+' technician'+(rows.length!==1?'s':'');
+    if(rows.length===0){ tbody.innerHTML='<tr class="empty-row"><td colspan="9">No data for the selected filters.</td></tr>'; return; }
+    tbody.innerHTML=rows.map((r,i)=>`<tr>
+      <td class="td-rank">${i+1}</td>
+      <td class="td-name">${esc(r.name)}</td>
+      <td>${esc(r.branch||'--')}</td>
+      <td>${r.jobs}</td>
+      <td>${r.completed}</td>
+      <td class="td-amount">${fKES(r.sales)}</td>
+      <td class="td-amount">${fKES(r.collected)}</td>
+      <td class="td-amount ${r.balance>0?'td-balance':'td-balance clear'}">${fKES(r.balance)}</td>
+      <td><div class="progress-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${r.rate}%"></div></div><span class="progress-pct">${r.rate}%</span></div></td>
+    </tr>`).join('');
+  }
+
+  function renderBranchReport(data){
+    const tbody=document.getElementById('branchReportBody');
+    const branches=['Nairobi','Nakuru','Eldoret','Mombasa','Kisumu','Kitale','Ecolife'];
+    const rows=branches.map(branch=>{
+      const jobs=data.filter(b=>b.branch===branch);
+      const completed=jobs.filter(b=>b.status==='Completed'||b.status==='Paid').length;
+      const sales=jobs.reduce((s,b)=>s+(parseFloat(b.amountCharged)||0),0);
+      const collected=jobs.reduce((s,b)=>s+(parseFloat(b.amountPaid)||0),0);
+      const balance=sales-collected;
+      const rate=jobs.length>0?Math.round((completed/jobs.length)*100):0;
+      return{branch,total:jobs.length,completed,sales,collected,balance,rate};
+    });
+    if(rows.every(r=>r.total===0)){ tbody.innerHTML='<tr class="empty-row"><td colspan="7">No data for the selected filters.</td></tr>'; return; }
+    tbody.innerHTML=rows.map(r=>`<tr>
+      <td class="td-name">${esc(r.branch)}</td>
+      <td>${r.total}</td>
+      <td>${r.completed}</td>
+      <td class="td-amount">${fKES(r.sales)}</td>
+      <td class="td-amount">${fKES(r.collected)}</td>
+      <td class="td-amount ${r.balance>0?'td-balance':'td-balance clear'}">${fKES(r.balance)}</td>
+      <td><div class="progress-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${r.rate}%"></div></div><span class="progress-pct">${r.rate}%</span></div></td>
+    </tr>`).join('');
+  }
+
+  function renderCustomerRegion(data){
+    const tbody=document.getElementById('customerRegionBody');
+    const branches=['Nairobi','Nakuru','Eldoret','Mombasa','Kisumu','Kitale','Ecolife'];
+    const rows=branches.map(branch=>{
+      const jobs=data.filter(b=>b.branch===branch);
+      const sales=jobs.reduce((s,b)=>s+(parseFloat(b.amountCharged)||0),0);
+      const customers=[...new Set(jobs.map(b=>b.clientPhone||b.clientName||'unknown'))];
+      const serviceCount={};
+      jobs.forEach(b=>{ const s=b.serviceRequired||'Unknown'; serviceCount[s]=(serviceCount[s]||0)+1; });
+      const topService=Object.entries(serviceCount).sort((a,b)=>b[1]-a[1])[0];
+      return{branch,customers:customers.length,jobs:jobs.length,sales,topService:topService?topService[0]:'--'};
+    });
+    document.getElementById('customerRegionCount').textContent=rows.reduce((s,r)=>s+r.customers,0)+' unique customers';
+    if(rows.every(r=>r.jobs===0)){ tbody.innerHTML='<tr class="empty-row"><td colspan="5">No data for the selected filters.</td></tr>'; return; }
+    tbody.innerHTML=rows.map(r=>`<tr>
+      <td class="td-name">${esc(r.branch)}</td>
+      <td>${r.customers}</td>
+      <td>${r.jobs}</td>
+      <td class="td-amount">${fKES(r.sales)}</td>
+      <td>${esc(r.topService)}</td>
+    </tr>`).join('');
+  }
+
+  function buildPager(btns,page,pages,go){
+    btns.innerHTML='';
+    if(pages<=1) return;
+    const mk=(label,disabled,cls,fn)=>{
+      const b=document.createElement('button');
+      b.className='page-btn'+(cls?' '+cls:'');
+      b.textContent=label;b.disabled=disabled;
+      b.addEventListener('click',fn);
+      btns.appendChild(b);
+    };
+    mk('Prev',page===1,'',()=>go(page-1));
+    for(let i=1;i<=pages;i++){
+      if(pages>7&&i>2&&i<pages-1&&Math.abs(i-page)>1) continue;
+      mk(String(i),false,i===page?'active':'',()=>go(i));
+    }
+    mk('Next',page===pages,'',()=>go(page+1));
+  }
+
+  // ---- Pagination (15 per page) ----
+  const PER_PAGE = 15;
+  let printAll = false;
+  const pager = {
+    daily:   { page:1, rows:[], body:'dailyBody',      info:'dailyInfo',   btns:'dailyBtns',   cols:8,  empty:'No bookings for the selected filters.',                         row:dailyRow },
+    pending: { page:1, rows:[], body:'pendingBalBody', info:'pendingInfo', btns:'pendingBtns', cols:9,  empty:'No outstanding balances. All jobs are fully paid.',              row:pendingRow },
+    pen:     { page:1, rows:[], body:'penBody',        info:'penInfo',     btns:'penBtns',     cols:11, empty:'No job loss penalties for the selected filters.',                row:penaltyRow }
+  };
+
+  function drawPage(key){
+    const p = pager[key];
+    const total = p.rows.length;
+    const pages = Math.max(1, Math.ceil(total / PER_PAGE));
+    if(p.page > pages) p.page = pages;
+    const tbody = document.getElementById(p.body);
+    const info  = document.getElementById(p.info);
+    const btns  = document.getElementById(p.btns);
+    if(total === 0){
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="${p.cols}">${p.empty}</td></tr>`;
+      info.textContent = ''; btns.innerHTML = '';
       return;
     }
-    wrap.innerHTML = jobs.map(b => {
-      const bal      = parseFloat(b.balance)||0;
-      const balClass = bal>0?'balance-pill':'balance-pill clear';
-      const balText  = bal>0?'Balance: KES '+fKES(bal):'Fully Paid';
-      return `<div class="job-card" id="card-${b.id}">
-        <div class="job-card-top" onclick="toggleCard('${b.id}')">
-          <div>
-            <div class="job-client-name">${esc(b.clientName||'--')}</div>
-            <div class="job-meta">
-              <span class="job-meta-item">
-                <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                ${esc(b.location||'--')}${b.estate?', '+esc(b.estate):''}
-              </span>
-              <span class="job-meta-item">
-                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                ${fDate(b.serviceDate)}${b.serviceTime?' at '+b.serviceTime:''}
-              </span>
-              <span class="job-meta-item">
-                <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                ${esc(b.serviceRequired||'--')}
-              </span>
-            </div>
-          </div>
-          <div class="job-right">
-            <span class="status-badge ${statusClass(b.status)}">${esc(b.status||'Pending')}</span>
-            <span class="job-amount">KES ${fKES(b.amountCharged)}</span>
-          </div>
-        </div>
-        <div class="job-card-body">
-          <div class="detail-grid">
-            <div class="detail-item">
-              <div class="detail-label">Client Phone</div>
-              <div class="detail-value"><a href="tel:${esc(b.clientPhone||'')} " style="color:var(--green);text-decoration:none;font-weight:600">${esc(b.clientPhone||'--')}</a></div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">Pest Targeted</div>
-              <div class="detail-value">${esc(b.pestTargeted||'--')}</div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">Property Size</div>
-              <div class="detail-value">${esc(b.propertySize||'--')}</div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">Branch</div>
-              <div class="detail-value">${esc(b.branch||'--')}</div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">Amount Charged</div>
-              <div class="detail-value" style="font-family:'Montserrat',sans-serif;font-weight:700">KES ${fKES(b.amountCharged)}</div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">Amount Paid</div>
-              <div class="detail-value" style="font-family:'Montserrat',sans-serif;font-weight:700">KES ${fKES(b.amountPaid)}</div>
-            </div>
-            <div class="detail-item detail-full">
-              <div class="detail-label">Balance</div>
-              <div class="detail-value"><span class="${balClass}">${balText}</span></div>
-            </div>
-            ${b.notes?`<div class="detail-item detail-full"><div class="detail-label">Notes</div><div class="detail-value">${esc(b.notes)}</div></div>`:''}
-          </div>
-          <div class="status-row" style="flex-direction:column;align-items:stretch;gap:10px">
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-              <label>Amount Paid (KES)</label>
-              <input type="number" id="paid-${b.id}" value="${parseFloat(b.amountPaid)||0}" min="0" style="flex:1;min-width:100px;padding:8px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:var(--bg-input);outline:none">
-              <button class="btn-update" onclick="updatePaid('${b.id}',${parseFloat(b.amountCharged)||0})">Save</button>
-            </div>
-            ${PENALTY_LOCKED.includes(b.status) ? lockedControl(b) : b.serviceRequired === 'Follow Up Visit' ? followUpControl(b) : `
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-              <label>Update Status</label>
-              <select id="sel-${b.id}" style="flex:1;min-width:130px;padding:8px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:var(--bg-input);outline:none;-webkit-appearance:none;appearance:none">
-                <option ${b.status==='Pending'?'selected':''}>Pending</option>
-                <option ${b.status==='Assigned'?'selected':''}>Assigned</option>
-                <option ${b.status==='Completed'?'selected':''}>Completed</option>
-                <option ${b.status==='Paid'?'selected':''}>Paid</option>
-              </select>
-              <button class="btn-update" onclick="updateStatus('${b.id}')">Update</button>
-            </div>`}
-          </div>
-        </div>
-      </div>`;
-    }).join('');
+    const start = printAll ? 0 : (p.page - 1) * PER_PAGE;
+    const end   = printAll ? total : Math.min(start + PER_PAGE, total);
+    tbody.innerHTML = p.rows.slice(start, end).map(p.row).join('');
+    info.textContent = `Showing ${start + 1} to ${end} of ${total}`;
+    buildPager(btns, p.page, pages, n => { p.page = n; drawPage(key); });
+  }
+  // print every row, not just the current page
+  window.addEventListener('beforeprint', () => { printAll = true;  Object.keys(pager).forEach(drawPage); });
+  window.addEventListener('afterprint',  () => { printAll = false; Object.keys(pager).forEach(drawPage); });
+
+  function dailyRow(b){
+    return `<tr>
+      <td style="white-space:nowrap;color:var(--text-dim)">${fDate(b.serviceDate)}</td>
+      <td class="td-name">${esc(b.clientName||'--')}</td>
+      <td>${esc(b.serviceRequired||'--')}</td>
+      <td>${esc(b.branch||'--')}</td>
+      <td>${esc(b.technicianAssigned||'Unassigned')}</td>
+      <td class="td-amount">${fKES(b.amountCharged)}</td>
+      <td class="td-amount">${fKES(b.amountPaid)}</td>
+      <td><span class="status-badge ${statusClass(b.status)}">${esc(b.status||'Pending')}</span></td>
+    </tr>`;
   }
 
-  window.toggleCard = function(id){
-    const card = document.getElementById('card-'+id);
-    if(card) card.classList.toggle('expanded');
-  };
-
-  window.updatePaid = async function(id, charged){
-    const newPaid    = parseFloat(document.getElementById('paid-'+id).value)||0;
-    const newBalance = charged - newPaid;
-    try{
-      await updateDoc(doc(db,'bookings',id),{amountPaid:newPaid,balance:newBalance});
-      const idx=myJobs.findIndex(b=>b.id===id);
-      if(idx>-1){myJobs[idx].amountPaid=newPaid;myJobs[idx].balance=newBalance;}
-      applyFilters();
-      showToast('Amount paid updated to KES '+newPaid.toLocaleString('en-KE')+'.','success');
-    } catch(e){ showToast('Failed to update amount. Please try again.','error'); }
-  };
-
-  window.updateStatus = async function(id){
-    const newStatus = document.getElementById('sel-'+id).value;
-    try{
-      await updateDoc(doc(db,'bookings',id),{status:newStatus});
-      const idx = myJobs.findIndex(b=>b.id===id);
-      if(idx>-1) myJobs[idx].status=newStatus;
-      applyFilters();
-      showToast('Status updated to '+newStatus+'.','success');
-    } catch(e){ showToast('Failed to update status. Please try again.','error'); }
-  };
-
-  function lockedControl(b){
-    return `<div class="locked-note">This job is marked <strong>${esc(b.status)}</strong>. Status changes on it are handled by the admin.</div>`;
+  function pendingRow(b){
+    return `<tr>
+      <td class="td-name">${esc(b.clientName||'--')}</td>
+      <td>${esc(b.clientPhone||'--')}</td>
+      <td>${esc(b.branch||'--')}</td>
+      <td>${esc(b.technicianAssigned||'Unassigned')}</td>
+      <td style="white-space:nowrap;color:var(--text-dim)">${fDate(b.serviceDate)}</td>
+      <td class="td-amount">${fKES(b.amountCharged)}</td>
+      <td class="td-amount">${fKES(b.amountPaid)}</td>
+      <td class="td-amount td-balance">${fKES(b.balance)}</td>
+      <td><span class="status-badge ${statusClass(b.status)}">${esc(b.status||'Pending')}</span></td>
+    </tr>`;
   }
 
-  function followUpControl(b){
-    if(b.status==='Resolved'){
-      return `<div class="followup-note">This follow up has been verified and resolved by the admin.</div>`;
+  function renderDailyReport(data){
+    const sorted=[...data].sort((a,b)=>(b.serviceDate||'').localeCompare(a.serviceDate||''));
+    document.getElementById('dailyCount').textContent=sorted.length+' booking'+(sorted.length!==1?'s':'');
+    pager.daily.rows = sorted;
+    pager.daily.page = 1;
+    drawPage('daily');
+  }
+
+  function renderPendingBalances(data){
+    const unpaid=data.filter(b=>(parseFloat(b.balance)||0)>0);
+    unpaid.sort((a,b)=>(parseFloat(b.balance)||0)-(parseFloat(a.balance)||0));
+    document.getElementById('pendingBalCount').textContent=unpaid.length+' unpaid';
+    pager.pending.rows = unpaid;
+    pager.pending.page = 1;
+    drawPage('pending');
+  }
+
+  // ---- Job Loss Penalty Report ----
+  function penaltyRow(p){
+    const others = PENALTY_STATES.filter(x => x !== p.status);
+    const label  = { 'Pending Deduction':['Set Pending','pend'], 'Deducted':['Mark Deducted',''], 'Waived':['Waive','waive'] };
+    const btns = others.map(st => `<button class="pen-btn ${label[st][1]}" onclick="setPenaltyStatus('${p.id}','${st}')">${label[st][0]}</button>`).join('');
+    return `<tr>
+      <td style="white-space:nowrap;color:var(--text-dim)">${fDate(p.lostDate)}</td>
+      <td class="td-name">${esc(p.jobRef||('JOB-'+String(p.bookingId||p.id).slice(0,6).toUpperCase()))}</td>
+      <td>${esc(p.technicianName||'--')}</td>
+      <td>${esc(p.branch||'--')}</td>
+      <td>${esc(p.clientName||'--')}</td>
+      <td class="td-amount">${fKES(p.quoteValue)}</td>
+      <td>${esc(p.penaltyPercent||30)}%</td>
+      <td class="td-amount td-balance">${fKES(p.penaltyAmount)}</td>
+      <td>${esc(p.reason||'Technician Negligence')}</td>
+      <td><span class="status-badge ${statusClass(p.status)}">${esc(p.status||'Pending Deduction')}</span></td>
+      <td class="pen-col-action"><div class="pen-actions">${btns}</div></td>
+    </tr>`;
+  }
+
+  function renderPenaltyReport(resetPage){
+    const f = penFilter;
+    const rows = allPenalties.filter(p =>
+      (f.branch==='all'||p.branch===f.branch) &&
+      (f.tech==='all'||p.technicianName===f.tech) &&
+      (!f.from||(p.lostDate&&p.lostDate>=f.from)) &&
+      (!f.to||(p.lostDate&&p.lostDate<=f.to)) &&
+      (f.status==='all'||p.status===f.status)
+    ).sort((a,b)=>(b.lostDate||'').localeCompare(a.lostDate||''));
+
+    const sum = st => rows.filter(p=>p.status===st).reduce((t,p)=>t+(parseFloat(p.penaltyAmount)||0),0);
+    const cnt = st => rows.filter(p=>p.status===st).length;
+    const jobsTxt = n => n+' job'+(n!==1?'s':'');
+    document.getElementById('penJobs').textContent    = rows.length;
+    document.getElementById('penQuote').textContent   = fKES(rows.reduce((t,p)=>t+(parseFloat(p.quoteValue)||0),0));
+    document.getElementById('penTotal').textContent   = fKES(rows.reduce((t,p)=>t+(parseFloat(p.penaltyAmount)||0),0));
+    document.getElementById('penDeducted').textContent = fKES(sum('Deducted'));
+    document.getElementById('penPending').textContent  = fKES(sum('Pending Deduction'));
+    document.getElementById('penWaived').textContent   = fKES(sum('Waived'));
+    document.getElementById('penDeductedSub').textContent = jobsTxt(cnt('Deducted'));
+    document.getElementById('penPendingSub').textContent  = jobsTxt(cnt('Pending Deduction'));
+    document.getElementById('penWaivedSub').textContent   = jobsTxt(cnt('Waived'));
+    document.getElementById('penCount').textContent = jobsTxt(rows.length);
+
+    pager.pen.rows = rows;
+    if(resetPage) pager.pen.page = 1;
+    drawPage('pen');
+  }
+
+  window.setPenaltyStatus = async function(id, status){
+    const p = allPenalties.find(x => x.id === id);
+    if(!p || p.status === status) return;
+    if(status === 'Waived'   && !confirm('Waive this penalty? The technician will not be charged.')) return;
+    if(status === 'Deducted' && !confirm('Mark this penalty as deducted from the technician?')) return;
+    try{
+      const upd = { status, updatedAt: serverTimestamp(), updatedBy: currentUserEmail };
+      if(status === 'Deducted') upd.deductedAt = serverTimestamp();
+      if(status === 'Waived')   upd.waivedAt   = serverTimestamp();
+      await updateDoc(doc(db,'joblosses',id), upd);
+      p.status = status;
+
+      // keep the booking's status in step, unless the job has since moved on (e.g. completed after a waiver)
+      const bk = allBookings.find(b => b.id === p.bookingId);
+      if(bk && PENALTY_STATES.includes(bk.status)){
+        try{ await updateDoc(doc(db,'bookings',bk.id), { status }); bk.status = status; }
+        catch(e){ console.error('Booking status sync failed', e); }
+      }
+      renderPenaltyReport(false);
+      drawPage('daily'); drawPage('pending');
+    } catch(e){
+      console.error(e);
+      alert('Could not update this penalty. Please try again.');
     }
-    if(b.status==='Completed (Awaiting Verification)'){
-      return `<div class="followup-note">Marked complete. <span class="penalty-tag">Penalty active until admin verifies</span></div>`;
-    }
-    return `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <span class="followup-note">Unresolved follow ups carry a <strong>KSh ${FOLLOWUP_PENALTY}</strong> penalty. Mark complete once the visit is done.</span>
-      <button class="btn-mark-complete" onclick="markFollowUpComplete('${b.id}')">Mark as Completed</button>
-    </div>`;
-  }
-
-  window.markFollowUpComplete = async function(id){
-    try{
-      await updateDoc(doc(db,'bookings',id),{status:'Completed (Awaiting Verification)'});
-      const idx = myJobs.findIndex(b=>b.id===id);
-      if(idx>-1) myJobs[idx].status='Completed (Awaiting Verification)';
-      applyFilters();
-      showToast('Follow up marked complete. Awaiting admin verification.','success');
-    } catch(e){ showToast('Failed to update follow up. Please try again.','error'); }
   };
 
-  function statusClass(status){
-    return (status||'pending').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  const FOLLOWUP_PENALTY = 250;
+
+  function renderFollowupPenaltyReport(data){
+    const tbody=document.getElementById('followupPenaltyBody');
+    const map={};
+    data.forEach(b=>{
+      const name=b.technicianAssigned||'Unassigned';
+      if(!map[name]) map[name]={assigned:0,completed:0,resolved:0,unresolved:0};
+      const m=map[name];
+      const status=b.status||'Pending';
+      m.assigned++;
+      if(status==='Resolved'){
+        m.resolved++;
+      } else {
+        m.unresolved++;
+        if(status==='Completed (Awaiting Verification)') m.completed++;
+      }
+    });
+    const rows=Object.entries(map).map(([name,m])=>({name,...m,penalty:m.unresolved*FOLLOWUP_PENALTY})).sort((a,b)=>b.penalty-a.penalty);
+    const totalUnresolved=rows.reduce((s,r)=>s+r.unresolved,0);
+    document.getElementById('followupPenaltyCount').textContent=totalUnresolved+' unresolved';
+    if(rows.length===0){ tbody.innerHTML='<tr class="empty-row"><td colspan="6">No follow-up visits for the selected filters.</td></tr>'; return; }
+    tbody.innerHTML=rows.map(r=>`<tr>
+      <td class="td-name">${esc(r.name)}</td>
+      <td>${r.assigned}</td>
+      <td>${r.completed}</td>
+      <td>${r.resolved}</td>
+      <td>${r.unresolved}</td>
+      <td class="td-amount ${r.penalty>0?'td-balance':'td-balance clear'}">${fKES(r.penalty)}</td>
+    </tr>`).join('');
   }
 
-  function showToast(msg,type){
-    const t=document.getElementById('toast');
-    t.textContent=msg;t.className='toast '+type;
-    setTimeout(()=>{t.className='toast';},4000);
-  }
-
+  function statusClass(status){ return String(status||'pending').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-+|-+$)/g,''); }
   function fKES(val){ const n=parseFloat(val)||0; return n.toLocaleString('en-KE',{minimumFractionDigits:0,maximumFractionDigits:0}); }
   function fDate(val){ if(!val) return '--'; const d=new Date(val); return isNaN(d)?val:d.toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'}); }
   function esc(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
