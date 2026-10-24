@@ -167,6 +167,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <option>Mombasa</option>
           <option>Kisumu</option>
           <option>Kitale</option>
+          <option>Ecolife</option>
 
         </select>
       </div>
@@ -256,6 +257,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="strip-item"><span class="strip-label">Mombasa</span><span class="strip-value" id="countMombasa">0</span></div>
       <div class="strip-item"><span class="strip-label">Kisumu</span><span class="strip-value" id="countKisumu">0</span></div>
       <div class="strip-item"><span class="strip-label">Kitale</span><span class="strip-value" id="countKitale">0</span></div>
+      <div class="strip-item"><span class="strip-label">Ecolife</span><span class="strip-value" id="countEcolife">0</span></div>
 
     </div>
 
@@ -330,6 +332,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     document.getElementById('countMombasa').textContent = allTechs.filter(t=>t.branch==='Mombasa').length;
     document.getElementById('countKisumu').textContent = allTechs.filter(t=>t.branch==='Kisumu').length;
     document.getElementById('countKitale').textContent = allTechs.filter(t=>t.branch==='Kitale').length;
+    document.getElementById('countEcolife').textContent = allTechs.filter(t=>t.branch==='Ecolife').length;
 
 
     if(allTechs.length===0){
