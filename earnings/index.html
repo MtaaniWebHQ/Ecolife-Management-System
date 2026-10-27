@@ -1,1 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecolife System | Earnings</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
+:root{
+  --bg:#060D06;
+  --bg-card:#0C160C;
+  --bg-input:#0F1A0F;
+  --sidebar-bg:#080F08;
+  --topbar-bg:#0A120A;
+  --green:#00E676;
+  --green-dim:#00C853;
+  --green-glow:rgba(0,230,118,0.08);
+  --green-border:rgba(0,230,118,0.18);
+  --green-border-strong:rgba(0,230,118,0.35);
+  --white:#E8F5E9;
+  --gray:#6B8F71;
+  --gray-dim:#3D5E42;
+  --text:#C8E6C9;
+  --text-dim:#8BAD8F;
+  --error:#FF5252;
+  --sidebar-w:240px;
+}
+
+html,body{height:100%;font-family:'Inter',sans-serif;color:var(--text);background:var(--bg)}
+
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 10% 10%,rgba(0,230,118,0.05) 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,rgba(0,200,83,0.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,230,118,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,230,118,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--sidebar-bg);border-right:1px solid var(--green-border);display:flex;flex-direction:column;z-index:100;transition:transform 0.3s}
+.sidebar-brand{padding:22px 20px 18px;border-bottom:1px solid var(--green-border);display:flex;align-items:center;gap:12px}
+.sidebar-brand img{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1.5px solid var(--green-border-strong);flex-shrink:0;box-shadow:0 0 12px rgba(0,230,118,0.15)}
+.brand-text{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:var(--green);letter-spacing:0.06em;line-height:1.2}
+.brand-text span{display:block;font-weight:500;font-size:10px;color:var(--gray);letter-spacing:0.1em;text-transform:uppercase}
+.sidebar-nav{flex:1;padding:14px 0;overflow-y:auto}
+.nav-section-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dim);padding:10px 20px 6px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 20px;cursor:pointer;color:var(--text-dim);font-size:15px;font-weight:500;transition:all 0.2s;border-left:2px solid transparent;text-decoration:none}
+.nav-item:hover{background:var(--green-glow);color:var(--white)}
+.nav-item.active{background:rgba(0,230,118,0.08);color:var(--green);border-left-color:var(--green)}
+.nav-icon{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--green-border)}
+.user-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:rgba(0,230,118,0.1);border:1px solid var(--green-border-strong);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--green);flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:14px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:10px;color:var(--gray);letter-spacing:0.08em;text-transform:uppercase}
+.btn-signout{width:100%;padding:8px;background:rgba(255,82,82,0.06);border:1px solid rgba(255,82,82,0.15);border-radius:7px;color:rgba(255,130,130,0.7);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-signout:hover{background:rgba(255,82,82,0.12);border-color:rgba(255,82,82,0.3);color:#FF8A80}
+
+.topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:60px;background:var(--topbar-bg);border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:90;gap:12px}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;color:var(--gray)}
+.menu-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--white);letter-spacing:0.04em}
+.btn-print{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:rgba(0,230,118,0.08);color:var(--green);font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;border-radius:7px;border:1px solid var(--green-border-strong);cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;text-transform:uppercase}
+.btn-print:hover{background:rgba(0,230,118,0.15)}
+.btn-print svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.main{margin-left:var(--sidebar-w);padding-top:60px;min-height:100vh;position:relative;z-index:1}
+.main-inner{padding:24px}
+
+/* FILTER CARD */
+.filter-card{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;padding:18px 20px;margin-bottom:24px}
+.filter-card-title{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.filter-group{display:flex;flex-direction:column;gap:5px;min-width:130px}
+.filter-group label{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em}
+.filter-select,.filter-date{padding:9px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:12.5px;color:var(--text);background:var(--bg-input);outline:none;cursor:pointer;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236B8F71' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:28px}
+.filter-date{background-image:none;padding-right:12px}
+.filter-select:focus,.filter-date:focus{border-color:var(--green-dim)}
+.btn-apply{padding:9px 20px;background:linear-gradient(135deg,#00C853,#00A846);color:#050D05;font-family:'Montserrat',sans-serif;font-weight:800;font-size:12px;border:none;border-radius:7px;cursor:pointer;transition:all 0.2s;white-space:nowrap;align-self:flex-end;text-transform:uppercase;letter-spacing:0.04em}
+.btn-apply:hover{background:linear-gradient(135deg,#00E676,#00C853);box-shadow:0 4px 14px rgba(0,200,83,0.3)}
+
+/* SUMMARY */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.sum-card{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;padding:16px;position:relative;overflow:hidden;transition:all 0.2s}
+.sum-card:hover{border-color:var(--green-border-strong);box-shadow:0 0 16px rgba(0,230,118,0.07)}
+.sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green-dim),transparent);opacity:0.5}
+.sum-label{font-size:10px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.sum-value{font-family:'Montserrat',sans-serif;font-weight:800;font-size:24px;color:var(--white);line-height:1}
+.sum-sub{font-size:11px;color:var(--gray);margin-top:4px}
+
+/* REPORT SECTIONS */
+.report-section{background:var(--bg-card);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.report-section-header{padding:14px 20px;border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between}
+.report-section-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--white);letter-spacing:0.04em}
+.report-count{font-size:11px;color:var(--text-dim);font-weight:500}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:500px}
+thead th{background:rgba(0,230,118,0.04);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);padding:11px 16px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--green-border)}
+tbody tr{border-bottom:1px solid rgba(0,230,118,0.06);transition:background 0.15s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--green-glow)}
+tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middle}
+.td-name{font-weight:600;color:var(--white)}
+.td-amount{font-family:'Montserrat',sans-serif;font-weight:700;color:var(--white)}
+.td-balance{font-family:'Montserrat',sans-serif;font-weight:700;color:#FF8A80}
+.td-balance.clear{color:var(--green)}
+.td-rank{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:var(--green);width:32px}
+
+.progress-wrap{display:flex;align-items:center;gap:8px}
+.progress-bar-bg{flex:1;height:5px;background:rgba(0,230,118,0.1);border-radius:3px;overflow:hidden;min-width:50px}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--green-dim),var(--green));border-radius:3px;transition:width 0.4s}
+.progress-pct{font-size:11px;color:var(--text-dim);font-weight:600;white-space:nowrap}
+
+.status-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;white-space:nowrap}
+.status-badge.pending{background:rgba(251,183,36,0.1);color:#FBB724;border:1px solid rgba(251,183,36,0.2)}
+.status-badge.assigned{background:rgba(59,130,246,0.1);color:#60A5FA;border:1px solid rgba(59,130,246,0.2)}
+.status-badge.completed{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
+.status-badge.paid{background:rgba(0,200,83,0.15);color:#69F0AE;border:1px solid rgba(0,200,83,0.25)}
+.status-badge.completed-awaiting-verification{background:rgba(96,165,250,0.12);color:#60A5FA;border:1px solid rgba(96,165,250,0.25)}
+.status-badge.resolved{background:rgba(0,230,118,0.15);color:var(--green);border:1px solid rgba(0,230,118,0.3)}
+.status-badge.lost{background:rgba(255,82,82,0.1);color:#FF8A80;border:1px solid rgba(255,82,82,0.25)}
+.status-badge.pending-deduction{background:rgba(251,146,60,0.12);color:#FB923C;border:1px solid rgba(251,146,60,0.28)}
+.status-badge.deducted{background:rgba(192,132,252,0.12);color:#C084FC;border:1px solid rgba(192,132,252,0.28)}
+.status-badge.waived{background:rgba(148,163,184,0.12);color:#94A3B8;border:1px solid rgba(148,163,184,0.25)}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--green-border);gap:10px;flex-wrap:wrap}
+.pagination-info{font-size:12px;color:var(--text-dim)}
+.pagination-btns{display:flex;gap:6px;flex-wrap:wrap}
+.page-btn{padding:6px 12px;border:1px solid var(--green-border);border-radius:6px;font-size:12px;font-weight:600;color:var(--text-dim);background:transparent;cursor:pointer;transition:all 0.2s}
+.page-btn:hover:not(:disabled){border-color:var(--green-border-strong);color:var(--green)}
+.page-btn:disabled{opacity:0.35;cursor:not-allowed}
+.page-btn.active{background:var(--green-dim);color:#050D05;border-color:var(--green-dim)}
+.pen-actions{display:flex;gap:6px;flex-wrap:nowrap}
+.pen-btn{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;background:rgba(0,230,118,0.08);color:var(--green);border:1px solid var(--green-border-strong);transition:all 0.2s}
+.pen-btn:hover{background:rgba(0,230,118,0.16)}
+.pen-btn.waive{background:rgba(148,163,184,0.1);color:#94A3B8;border-color:rgba(148,163,184,0.3)}
+.pen-btn.waive:hover{background:rgba(148,163,184,0.2)}
+.pen-btn.pend{background:rgba(251,146,60,0.1);color:#FB923C;border-color:rgba(251,146,60,0.3)}
+.pen-btn.pend:hover{background:rgba(251,146,60,0.2)}
+
+.empty-row td{text-align:center;color:var(--gray);padding:32px;font-size:14px}
+
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99}
+
+@media print{
+  .sidebar,.topbar,.filter-card,.sidebar-overlay,.btn-print,.menu-toggle{display:none!important}
+  .main{margin-left:0;padding-top:0;background:#fff}
+  .main-inner{padding:0}
+  body{background:#fff;color:#111}
+  .report-section{break-inside:avoid;border:1px solid #ccc;margin-bottom:16px;background:#fff}
+  .summary-grid{grid-template-columns:repeat(4,1fr)}
+  thead th{background:#f3f4f6;color:#374151}
+  tbody td{color:#111}
+  .td-name,.td-amount{color:#111}
+  .sum-value{color:#111}
+}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block}
+  .topbar{left:0}
+  .main{margin-left:0}
+  .menu-toggle{display:flex}
+  .main-inner{padding:16px}
+  .filter-row{gap:8px}
+  .filter-group{min-width:110px}
+}
+@media print{.pagination,.pen-col-action{display:none!important}}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="overlay"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="https://res.cloudinary.com/hztm3zo8/image/upload/v1782422764/FB_IMG_1781877214514_qq7dt6.jpg" alt="Ecolife">
+    <div class="brand-text">ECOLIFE <span>Operations System</span></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="../dashboard/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="../bookings/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Bookings
+    </a>
+    <a class="nav-item" href="../new-booking/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      New Booking
+    </a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="../technicians/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Technicians
+    </a>
+    <a class="nav-item active" href="../earnings/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Earnings
+    </a>
+    <a class="nav-item" href="../reports/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Reports
+    </a>
+    <a class="nav-item" href="../settings/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar" id="userAvatar">E</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-role">Admin</div>
+      </div>
+    </div>
+    <button class="btn-signout" id="signOutBtn">
+      <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </button>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <button class="menu-toggle" id="menuToggle">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span class="page-title">Technician Earnings</span>
+  </div>
+  <button class="btn-print" onclick="window.print()">Print</button>
+</div>
+
+<main class="main">
+  <div class="main-inner">
+
+    <div class="filter-card">
+      <div class="filter-card-title">Earnings for the month</div>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>Pay Month</label>
+          <input class="filter-date" type="month" id="payMonth">
+        </div>
+        <div class="filter-group">
+          <label>Region / Branch</label>
+          <select class="filter-select" id="filterBranch">
+            <option value="all">All Branches</option>
+            <option>Nairobi</option><option>Nakuru</option><option>Eldoret</option><option>Mombasa</option><option>Kisumu</option><option>Kitale</option><option>Ecolife</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Technician</label>
+          <select class="filter-select" id="filterTech"><option value="all">All Technicians</option></select>
+        </div>
+        <button class="btn-apply" id="payRunBtn" type="button">Calculate</button>
+        <button class="btn-apply" id="payCsvBtn" type="button" style="background:rgba(0,230,118,0.08);color:#00E676;border:1px solid rgba(0,230,118,0.35)">Download CSV</button>
+      </div>
+      <div id="payRates" style="font-size:12px;color:var(--text-dim);margin-top:12px"></div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="sum-card"><div class="sum-label">Technicians</div><div class="sum-value" id="eCount">0</div><div class="sum-sub" id="eMonth"></div></div>
+      <div class="sum-card"><div class="sum-label">Total Sales (KES)</div><div class="sum-value" id="eSales">0</div><div class="sum-sub">Commission base</div></div>
+      <div class="sum-card"><div class="sum-label">Commission (KES)</div><div class="sum-value" id="eComm">0</div><div class="sum-sub" id="ePct"></div></div>
+      <div class="sum-card"><div class="sum-label">Retainers (KES)</div><div class="sum-value" id="eRet">0</div><div class="sum-sub">Baseline pay</div></div>
+      <div class="sum-card"><div class="sum-label">Deductions (KES)</div><div class="sum-value" id="eDed" style="color:#FF8A80">0</div><div class="sum-sub">Penalties</div></div>
+      <div class="sum-card"><div class="sum-label">Total Net Pay (KES)</div><div class="sum-value" id="eNet" style="color:var(--green)">0</div><div class="sum-sub">To pay out</div></div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-header">
+        <span class="report-section-title">Earnings per Technician</span>
+        <span class="report-count" id="payCount"></span>
+      </div>
+      <div class="table-scroll">
+        <table style="min-width:1000px">
+          <thead><tr><th>Technician</th><th>Branch</th><th>Jobs</th><th>Sales (KES)</th><th>Commission</th><th>Retainer</th><th>Gross</th><th>Follow Up Ded.</th><th>Job Loss Ded.</th><th>Net Pay (KES)</th><th class="pen-col-action">Payslip</th></tr></thead>
+          <tbody id="payBody"><tr class="empty-row"><td colspan="11">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBxi76PxDat-G5bjcUQ2MmPe0mGcTE-izs",
+    authDomain: "ecolife-system-ff2d6.firebaseapp.com",
+    databaseURL: "https://ecolife-system-ff2d6-default-rtdb.firebaseio.com",
+    projectId: "ecolife-system-ff2d6",
+    storageBucket: "ecolife-system-ff2d6.firebasestorage.app",
+    messagingSenderId: "421807560122",
+    appId: "1:421807560122:web:877a49223b03ba4a477983"
+  };
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  const ADMIN_EMAIL = 'ecolifepestguard@gmail.com';
+
+  let allBookings = [], allTechs = [], allPenalties = [];
+  let payRows = [];
+
+  /* ===== PAYROLL CORE (retainer + commission - penalties) ===== */
+  const PAY_DEFAULT = { retainer:12000, commissionPct:7, commissionBasis:'charged', followUpPenalty:250,
+                        companyName:'Ecolife Pest Control', companyPhone:'', companyEmail:'', companyAddress:'', payslipNote:'' };
+  let PAY = Object.assign({}, PAY_DEFAULT);
+
+  async function loadPayRates(){
+    try{
+      const a = await getDoc(doc(db,'settings','payroll'));
+      if(a.exists()) PAY = Object.assign({}, PAY_DEFAULT, a.data());
+    }catch(e){ console.error('Payroll rates not loaded, using defaults', e); }
+    try{
+      const c = await getDoc(doc(db,'settings','company'));
+      if(c.exists()) PAY = Object.assign({}, PAY, c.data());
+    }catch(e){ console.error('Company details not loaded', e); }
+  }
+
+  function pNum(v){ return parseFloat(v)||0; }
+  function pKES(v){ return Math.round(pNum(v)).toLocaleString('en-KE'); }
+  function pEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function pMonthLabel(ym){ const d = new Date(ym+'-01T00:00:00'); return isNaN(d) ? ym : d.toLocaleDateString('en-KE',{month:'long',year:'numeric'}); }
+  function pThisMonth(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+
+  function computePay(jobs, pens, ym){
+    const LOCK = ['Lost','Pending Deduction','Deducted','Waived'];
+    const inMonth = d => typeof d === 'string' && d.slice(0,7) === ym;
+    const mj = jobs.filter(b => inMonth(b.serviceDate));
+    const earning = mj.filter(b => b.serviceRequired !== 'Follow Up Visit' && !LOCK.includes(b.status));
+    const sales = earning.reduce((t,b) => t + (PAY.commissionBasis === 'collected' ? pNum(b.amountPaid) : pNum(b.amountCharged)), 0);
+    const commission = Math.round(sales * pNum(PAY.commissionPct) / 100);
+    const retainer = pNum(PAY.retainer);
+    const gross = retainer + commission;
+    const fu = mj.filter(b => b.serviceRequired === 'Follow Up Visit' && b.status !== 'Resolved').length;
+    const fuAmt = fu * pNum(PAY.followUpPenalty);
+    const jl = pens.filter(p => inMonth(p.lostDate) && (p.status === 'Pending Deduction' || p.status === 'Deducted'));
+    const jlAmt = jl.reduce((t,p) => t + pNum(p.penaltyAmount), 0);
+    return { ym, jobs: mj.length, paidJobs: earning.length, sales, commission, retainer, gross,
+             fu, fuAmt, jlCount: jl.length, jlAmt, deductions: fuAmt + jlAmt, net: gross - fuAmt - jlAmt };
+  }
+
+  function payslipHTML(name, branch, s){
+    const row = (a,b,cls) => '<tr class="'+(cls||'')+'"><td>'+a+'</td><td class="r">'+b+'</td></tr>';
+    return '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Payslip '+pEsc(name)+' '+pEsc(s.ym)+'</title>'
+    + '<style>body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:0;padding:24px;background:#fff}.box{max-width:680px;margin:0 auto;border:1px solid #bbb;padding:28px}'
+    + 'h1{font-size:20px;margin:0 0 4px}h2{font-size:14px;margin:22px 0 8px;text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid #111;padding-bottom:4px}'
+    + '.sub{font-size:12px;color:#555;line-height:1.5}.meta{display:flex;justify-content:space-between;gap:16px;margin-top:18px;font-size:13px;flex-wrap:wrap}'
+    + 'table{width:100%;border-collapse:collapse;font-size:13px}td{padding:7px 4px;border-bottom:1px solid #ddd}td.r{text-align:right;white-space:nowrap}'
+    + 'tr.tot td{font-weight:700;border-top:2px solid #111;border-bottom:none}tr.net td{font-weight:800;font-size:16px;border-top:2px solid #111;background:#f2f2f2}'
+    + '.note{font-size:11px;color:#555;margin-top:22px;line-height:1.5}.sig{display:flex;justify-content:space-between;margin-top:40px;font-size:12px}.sig div{width:44%;border-top:1px solid #111;padding-top:4px}'
+    + '@media print{body{padding:0}.box{border:none}}</style></head><body><div class="box">'
+    + '<h1>'+pEsc(PAY.companyName||'Ecolife Pest Control')+'</h1>'
+    + '<div class="sub">'+[PAY.companyAddress,PAY.companyPhone,PAY.companyEmail].filter(Boolean).map(pEsc).join(' | ')+'</div>'
+    + '<h2>Payslip for '+pEsc(pMonthLabel(s.ym))+'</h2>'
+    + '<div class="meta"><div><strong>Technician:</strong> '+pEsc(name)+'<br><strong>Branch:</strong> '+pEsc(branch||'--')+'</div>'
+    + '<div><strong>Generated:</strong> '+pEsc(new Date().toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'}))+'<br><strong>Jobs in month:</strong> '+s.jobs+'</div></div>'
+    + '<h2>Earnings</h2><table>'
+    + row('Monthly retainer','KES '+pKES(s.retainer))
+    + row('Sales basis ('+(PAY.commissionBasis==='collected'?'amount collected':'amount charged')+', '+s.paidJobs+' jobs)','KES '+pKES(s.sales))
+    + row('Commission at '+pNum(PAY.commissionPct)+'%','KES '+pKES(s.commission))
+    + row('Gross pay','KES '+pKES(s.gross),'tot')
+    + '</table><h2>Deductions</h2><table>'
+    + row('Unresolved follow ups ('+s.fu+' x KES '+pKES(PAY.followUpPenalty)+')','KES '+pKES(s.fuAmt))
+    + row('Job loss penalties ('+s.jlCount+')','KES '+pKES(s.jlAmt))
+    + row('Total deductions','KES '+pKES(s.deductions),'tot')
+    + '</table><table style="margin-top:14px">'+row('NET PAY','KES '+pKES(s.net),'net')+'</table>'
+    + (PAY.payslipNote ? '<div class="note">'+pEsc(PAY.payslipNote)+'</div>' : '')
+    + '<div class="note">This payslip is generated from the Ecolife Operations System. Figures cover jobs with a service date in the month shown.</div>'
+    + '<div class="sig"><div>Prepared by</div><div>Received by</div></div>'
+    + '</div></body></html>';
+  }
+
+  function openPayslip(name, branch, s){
+    const html = payslipHTML(name, branch, s);
+    const w = window.open('', '_blank');
+    if(w){
+      w.document.open(); w.document.write(html); w.document.close();
+      setTimeout(() => { try{ w.focus(); w.print(); }catch(e){} }, 500);
+    } else {
+      downloadText('Payslip_'+name.replace(/\s+/g,'_')+'_'+s.ym+'.html', html, 'text/html');
+    }
+  }
+
+  function downloadText(filename, text, type){
+    const blob = new Blob([text], { type: (type||'text/plain')+';charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+
+  function csvCell(v){ const s = String(v==null?'':v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+  const PAY_CSV_HEAD = ['Month','Technician','Branch','Jobs','Sales','Commission','Retainer','Gross','Unresolved Follow Ups','Follow Up Deduction','Job Loss Penalties','Job Loss Deduction','Total Deductions','Net Pay'];
+  function payCsvRow(name, branch, s){
+    return [s.ym,name,branch||'',s.jobs,s.sales,s.commission,s.retainer,s.gross,s.fu,s.fuAmt,s.jlCount,s.jlAmt,s.deductions,s.net].map(csvCell).join(',');
+  }
+
+  document.getElementById('menuToggle').addEventListener('click', () => { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); });
+  document.getElementById('overlay').addEventListener('click', () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); });
+  document.getElementById('signOutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = '../'; });
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = '../'; return; }
+    if (user.email !== ADMIN_EMAIL) { window.location.href = '../dashboard/'; return; }
+    document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
+    document.getElementById('userName').textContent   = user.email.split('@')[0];
+    document.getElementById('payMonth').value = pThisMonth();
+    try{
+      const [b, t, p] = await Promise.all([ getDocs(collection(db,'bookings')), getDocs(collection(db,'technicians')), getDocs(collection(db,'joblosses')).catch(() => null), loadPayRates() ]);
+      allBookings = b.docs.map(d => d.data());
+      allTechs = t.docs.map(d => ({ id:d.id, ...d.data() })).sort((a,c) => String(a.name).localeCompare(String(c.name)));
+      allPenalties = p ? p.docs.map(d => d.data()) : [];
+    }catch(e){
+      console.error(e);
+      document.getElementById('payBody').innerHTML = '<tr class="empty-row"><td colspan="11">Could not load data. Please refresh.</td></tr>';
+      return;
+    }
+    const sel = document.getElementById('filterTech');
+    allTechs.forEach(t => { const o = document.createElement('option'); o.value = t.name; o.textContent = t.name; sel.appendChild(o); });
+    renderPayroll();
+  });
+
+  function payTechList(){
+    const branch = document.getElementById('filterBranch').value;
+    const tech   = document.getElementById('filterTech').value;
+    return allTechs.filter(t => (branch==='all'||t.branch===branch) && (tech==='all'||t.name===tech));
+  }
+
+  function renderPayroll(){
+    const ym = document.getElementById('payMonth').value || pThisMonth();
+    payRows = payTechList().map(t => ({ t, s: computePay(allBookings.filter(b => b.technicianAssigned === t.name), allPenalties.filter(p => p.technicianName === t.name), ym) }));
+    document.getElementById('payRates').textContent = 'Retainer KES '+pKES(PAY.retainer)+' + '+pNum(PAY.commissionPct)+'% commission on '+(PAY.commissionBasis==='collected'?'collected':'charged')+' sales, less KES '+pKES(PAY.followUpPenalty)+' per unresolved follow up and job loss penalties. Change rates in Settings.';
+    document.getElementById('payCount').textContent = payRows.length+' technician'+(payRows.length!==1?'s':'');
+    const tot = payRows.reduce((a,r) => ({ sales:a.sales+r.s.sales, comm:a.comm+r.s.commission, ret:a.ret+r.s.retainer, gross:a.gross+r.s.gross, fu:a.fu+r.s.fuAmt, jl:a.jl+r.s.jlAmt, net:a.net+r.s.net, jobs:a.jobs+r.s.jobs }), {sales:0,comm:0,ret:0,gross:0,fu:0,jl:0,net:0,jobs:0});
+    const set = (id,v) => { document.getElementById(id).textContent = v; };
+    set('eCount', payRows.length); set('eMonth', pMonthLabel(ym)); set('eSales', pKES(tot.sales)); set('eComm', pKES(tot.comm));
+    set('ePct', pNum(PAY.commissionPct)+'% of sales'); set('eRet', pKES(tot.ret)); set('eDed', pKES(tot.fu+tot.jl)); set('eNet', pKES(tot.net));
+    const body = document.getElementById('payBody');
+    if(!payRows.length){ body.innerHTML = '<tr class="empty-row"><td colspan="11">No technicians match the filters</td></tr>'; return; }
+    body.innerHTML = payRows.map((r,i) => `<tr>
+      <td class="td-name">${pEsc(r.t.name)}</td>
+      <td>${pEsc(r.t.branch||'--')}</td>
+      <td>${r.s.jobs}</td>
+      <td class="td-amount">${pKES(r.s.sales)}</td>
+      <td class="td-amount">${pKES(r.s.commission)}</td>
+      <td class="td-amount">${pKES(r.s.retainer)}</td>
+      <td class="td-amount">${pKES(r.s.gross)}</td>
+      <td class="td-amount">${pKES(r.s.fuAmt)}</td>
+      <td class="td-amount">${pKES(r.s.jlAmt)}</td>
+      <td class="td-amount" style="color:#00E676;font-weight:800">${pKES(r.s.net)}</td>
+      <td class="pen-col-action"><button type="button" class="btn-apply" data-pay="${i}" style="padding:6px 12px;font-size:11px">Payslip</button></td>
+    </tr>`).join('') + `<tr style="font-weight:800"><td colspan="2">TOTAL</td><td>${tot.jobs}</td><td>${pKES(tot.sales)}</td><td>${pKES(tot.comm)}</td><td>${pKES(tot.ret)}</td><td>${pKES(tot.gross)}</td><td>${pKES(tot.fu)}</td><td>${pKES(tot.jl)}</td><td>${pKES(tot.net)}</td><td class="pen-col-action"></td></tr>`;
+  }
+
+  document.getElementById('payRunBtn').addEventListener('click', renderPayroll);
+  ['payMonth','filterBranch','filterTech'].forEach(id => document.getElementById(id).addEventListener('change', renderPayroll));
+  window.addEventListener('branchesLoaded', renderPayroll);
+  document.getElementById('payBody').addEventListener('click', e => {
+    const btn = e.target.closest('[data-pay]');
+    if(!btn) return;
+    const r = payRows[parseInt(btn.getAttribute('data-pay'),10)];
+    if(r) openPayslip(r.t.name, r.t.branch, r.s);
+  });
+  document.getElementById('payCsvBtn').addEventListener('click', () => {
+    if(!payRows.length) return;
+    downloadText('Payroll_'+payRows[0].s.ym+'.csv', PAY_CSV_HEAD.join(',')+'\n'+payRows.map(r => payCsvRow(r.t.name, r.t.branch, r.s)).join('\n')+'\n', 'text/csv');
+  });
+</script>
+
+<!-- SETTINGS INTEGRATION: profile photo, dynamic branches, preferences -->
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+  const app  = getApp();
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  const DEFAULTS = ['Nairobi','Nakuru','Eldoret','Mombasa','Kisumu','Kitale','Ecolife'];
+  const ls = {
+    get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+    set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+  };
+
+  function paintProfile(p, email){
+    if(!p) return;
+    const av = document.getElementById('userAvatar');
+    if(av){
+      if(p.photoURL){
+        av.style.backgroundImage = 'url("'+String(p.photoURL).replace(/"/g,'%22')+'")';
+        av.style.backgroundSize = 'cover';
+        av.style.backgroundPosition = 'center';
+        av.style.color = 'transparent';
+      }
+      const un = document.getElementById('userName');
+      if(un && p.displayName) un.textContent = p.displayName;
+    } else if(p.photoURL && document.getElementById('techNameBadge') && !document.getElementById('techPhoto')){
+      const img = document.createElement('img');
+      img.id = 'techPhoto';
+      img.src = p.photoURL;
+      img.alt = '';
+      img.style.cssText = 'width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid rgba(0,230,118,0.35);margin-right:4px';
+      const badge = document.getElementById('techNameBadge');
+      badge.parentNode.insertBefore(img, badge);
+    }
+  }
+
+  function applyBranches(list){
+    window.__branches = list;
+    document.querySelectorAll('select').forEach(sel => {
+      const opts = Array.from(sel.options);
+      if(!opts.some(o => DEFAULTS.includes((o.value||o.text).trim()))) return;
+      const current = sel.value;
+      opts.forEach(o => { if(DEFAULTS.includes((o.value||o.text).trim())) o.remove(); });
+      list.forEach(n => {
+        const o = document.createElement('option');
+        o.value = n; o.textContent = n;
+        sel.appendChild(o);
+      });
+      if(Array.from(sel.options).some(o => o.value === current)) sel.value = current;
+    });
+    window.dispatchEvent(new Event('branchesLoaded'));
+  }
+
+  async function extendTechStrip(list){
+    const strip = document.querySelector('.summary-strip');
+    if(!strip || !document.getElementById('countNairobi')) return;
+    const extra = list.filter(n => !DEFAULTS.includes(n));
+    if(!extra.length) return;
+    try{
+      const s = await getDocs(collection(db,'technicians'));
+      const techs = s.docs.map(d => d.data());
+      extra.forEach(n => {
+        const d = document.createElement('div');
+        d.className = 'strip-item';
+        const a = document.createElement('span'); a.className = 'strip-label'; a.textContent = n;
+        const b = document.createElement('span'); b.className = 'strip-value'; b.textContent = techs.filter(t => t.branch === n).length;
+        d.appendChild(a); d.appendChild(b);
+        strip.appendChild(d);
+      });
+    }catch(e){ console.error(e); }
+  }
+
+  async function loadBranches(){
+    try{
+      const s = await getDocs(collection(db,'branches'));
+      const rows = s.docs.map(d => d.data()).filter(b => b && b.name && b.active !== false);
+      if(!rows.length) return;
+      rows.sort((a,b) => (a.order||0)-(b.order||0) || String(a.name).localeCompare(String(b.name)));
+      const list = rows.map(b => b.name);
+      applyBranches(list);
+      extendTechStrip(list);
+    }catch(e){ console.error('Branches not loaded, using defaults', e); }
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if(!user) return;
+    const email = (user.email||'').toLowerCase();
+    const cached = ls.get('ecolife_profile_'+email);
+    if(cached){ try{ paintProfile(JSON.parse(cached), email); }catch(e){} }
+    try{
+      const s = await getDoc(doc(db,'profiles',email));
+      if(s.exists()){
+        const p = s.data();
+        ls.set('ecolife_profile_'+email, JSON.stringify({photoURL:p.photoURL||'', displayName:p.displayName||''}));
+        paintProfile(p, email);
+        setTimeout(() => paintProfile(p, email), 1500);
+      }
+    }catch(e){ console.error('Profile not loaded', e); }
+    loadBranches();
+  });
+</script>
+
+</body>
+</html>
