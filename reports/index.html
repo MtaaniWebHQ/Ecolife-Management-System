@@ -199,6 +199,10 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
       <svg class="nav-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Reports
     </a>
+    <a class="nav-item" href="../settings/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </a>
   </nav>
   <div class="sidebar-footer">
     <div class="user-row">
@@ -330,6 +334,28 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
       </div>
     </div>
 
+    <div class="report-section" id="payrollSection">
+      <div class="report-section-header">
+        <span class="report-section-title">Technician Payroll</span>
+        <span class="report-count" id="payCount"></span>
+      </div>
+      <div style="padding:14px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+        <div class="filter-group">
+          <label>Pay Month</label>
+          <input type="month" class="filter-date" id="payMonth">
+        </div>
+        <button class="btn-apply" id="payRunBtn" type="button">Calculate</button>
+        <button class="btn-apply" id="payCsvBtn" type="button" style="background:rgba(0,230,118,0.08);color:#00E676;border:1px solid rgba(0,230,118,0.35)">Download CSV</button>
+        <span id="payRates" style="font-size:12px;color:var(--text-dim)"></span>
+      </div>
+      <div class="table-scroll">
+        <table style="min-width:1000px">
+          <thead><tr><th>Technician</th><th>Branch</th><th>Jobs</th><th>Sales (KES)</th><th>Commission</th><th>Retainer</th><th>Gross</th><th>Follow Up Ded.</th><th>Job Loss Ded.</th><th>Net Pay (KES)</th><th class="pen-col-action">Payslip</th></tr></thead>
+          <tbody id="payBody"><tr class="empty-row"><td colspan="11">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
     <div class="report-section" id="jobLossSection">
       <div class="report-section-header">
         <span class="report-section-title">Job Loss Penalty Report</span>
@@ -422,7 +448,7 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
 <script type="module">
   import { initializeApp }    from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, updateDoc, serverTimestamp }    from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc, serverTimestamp, getDoc }    from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBxi76PxDat-G5bjcUQ2MmPe0mGcTE-izs",
@@ -439,6 +465,151 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
   const db   = getFirestore(app);
 
   let allBookings = [];
+
+  /* ===== PAYROLL CORE (retainer + commission - penalties) ===== */
+  const PAY_DEFAULT = { retainer:12000, commissionPct:7, commissionBasis:'charged', followUpPenalty:250,
+                        companyName:'Ecolife Pest Control', companyPhone:'', companyEmail:'', companyAddress:'', payslipNote:'' };
+  let PAY = Object.assign({}, PAY_DEFAULT);
+
+  async function loadPayRates(){
+    try{
+      const a = await getDoc(doc(db,'settings','payroll'));
+      if(a.exists()) PAY = Object.assign({}, PAY_DEFAULT, a.data());
+    }catch(e){ console.error('Payroll rates not loaded, using defaults', e); }
+    try{
+      const c = await getDoc(doc(db,'settings','company'));
+      if(c.exists()) PAY = Object.assign({}, PAY, c.data());
+    }catch(e){ console.error('Company details not loaded', e); }
+  }
+
+  function pNum(v){ return parseFloat(v)||0; }
+  function pKES(v){ return Math.round(pNum(v)).toLocaleString('en-KE'); }
+  function pEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function pMonthLabel(ym){ const d = new Date(ym+'-01T00:00:00'); return isNaN(d) ? ym : d.toLocaleDateString('en-KE',{month:'long',year:'numeric'}); }
+  function pThisMonth(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+
+  function computePay(jobs, pens, ym){
+    const LOCK = ['Lost','Pending Deduction','Deducted','Waived'];
+    const inMonth = d => typeof d === 'string' && d.slice(0,7) === ym;
+    const mj = jobs.filter(b => inMonth(b.serviceDate));
+    const earning = mj.filter(b => b.serviceRequired !== 'Follow Up Visit' && !LOCK.includes(b.status));
+    const sales = earning.reduce((t,b) => t + (PAY.commissionBasis === 'collected' ? pNum(b.amountPaid) : pNum(b.amountCharged)), 0);
+    const commission = Math.round(sales * pNum(PAY.commissionPct) / 100);
+    const retainer = pNum(PAY.retainer);
+    const gross = retainer + commission;
+    const fu = mj.filter(b => b.serviceRequired === 'Follow Up Visit' && b.status !== 'Resolved').length;
+    const fuAmt = fu * pNum(PAY.followUpPenalty);
+    const jl = pens.filter(p => inMonth(p.lostDate) && (p.status === 'Pending Deduction' || p.status === 'Deducted'));
+    const jlAmt = jl.reduce((t,p) => t + pNum(p.penaltyAmount), 0);
+    return { ym, jobs: mj.length, paidJobs: earning.length, sales, commission, retainer, gross,
+             fu, fuAmt, jlCount: jl.length, jlAmt, deductions: fuAmt + jlAmt, net: gross - fuAmt - jlAmt };
+  }
+
+  function payslipHTML(name, branch, s){
+    const row = (a,b,cls) => '<tr class="'+(cls||'')+'"><td>'+a+'</td><td class="r">'+b+'</td></tr>';
+    return '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Payslip '+pEsc(name)+' '+pEsc(s.ym)+'</title>'
+    + '<style>body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:0;padding:24px;background:#fff}.box{max-width:680px;margin:0 auto;border:1px solid #bbb;padding:28px}'
+    + 'h1{font-size:20px;margin:0 0 4px}h2{font-size:14px;margin:22px 0 8px;text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid #111;padding-bottom:4px}'
+    + '.sub{font-size:12px;color:#555;line-height:1.5}.meta{display:flex;justify-content:space-between;gap:16px;margin-top:18px;font-size:13px;flex-wrap:wrap}'
+    + 'table{width:100%;border-collapse:collapse;font-size:13px}td{padding:7px 4px;border-bottom:1px solid #ddd}td.r{text-align:right;white-space:nowrap}'
+    + 'tr.tot td{font-weight:700;border-top:2px solid #111;border-bottom:none}tr.net td{font-weight:800;font-size:16px;border-top:2px solid #111;background:#f2f2f2}'
+    + '.note{font-size:11px;color:#555;margin-top:22px;line-height:1.5}.sig{display:flex;justify-content:space-between;margin-top:40px;font-size:12px}.sig div{width:44%;border-top:1px solid #111;padding-top:4px}'
+    + '@media print{body{padding:0}.box{border:none}}</style></head><body><div class="box">'
+    + '<h1>'+pEsc(PAY.companyName||'Ecolife Pest Control')+'</h1>'
+    + '<div class="sub">'+[PAY.companyAddress,PAY.companyPhone,PAY.companyEmail].filter(Boolean).map(pEsc).join(' | ')+'</div>'
+    + '<h2>Payslip for '+pEsc(pMonthLabel(s.ym))+'</h2>'
+    + '<div class="meta"><div><strong>Technician:</strong> '+pEsc(name)+'<br><strong>Branch:</strong> '+pEsc(branch||'--')+'</div>'
+    + '<div><strong>Generated:</strong> '+pEsc(new Date().toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'}))+'<br><strong>Jobs in month:</strong> '+s.jobs+'</div></div>'
+    + '<h2>Earnings</h2><table>'
+    + row('Monthly retainer','KES '+pKES(s.retainer))
+    + row('Sales basis ('+(PAY.commissionBasis==='collected'?'amount collected':'amount charged')+', '+s.paidJobs+' jobs)','KES '+pKES(s.sales))
+    + row('Commission at '+pNum(PAY.commissionPct)+'%','KES '+pKES(s.commission))
+    + row('Gross pay','KES '+pKES(s.gross),'tot')
+    + '</table><h2>Deductions</h2><table>'
+    + row('Unresolved follow ups ('+s.fu+' x KES '+pKES(PAY.followUpPenalty)+')','KES '+pKES(s.fuAmt))
+    + row('Job loss penalties ('+s.jlCount+')','KES '+pKES(s.jlAmt))
+    + row('Total deductions','KES '+pKES(s.deductions),'tot')
+    + '</table><table style="margin-top:14px">'+row('NET PAY','KES '+pKES(s.net),'net')+'</table>'
+    + (PAY.payslipNote ? '<div class="note">'+pEsc(PAY.payslipNote)+'</div>' : '')
+    + '<div class="note">This payslip is generated from the Ecolife Operations System. Figures cover jobs with a service date in the month shown.</div>'
+    + '<div class="sig"><div>Prepared by</div><div>Received by</div></div>'
+    + '</div></body></html>';
+  }
+
+  function openPayslip(name, branch, s){
+    const html = payslipHTML(name, branch, s);
+    const w = window.open('', '_blank');
+    if(w){
+      w.document.open(); w.document.write(html); w.document.close();
+      setTimeout(() => { try{ w.focus(); w.print(); }catch(e){} }, 500);
+    } else {
+      downloadText('Payslip_'+name.replace(/\s+/g,'_')+'_'+s.ym+'.html', html, 'text/html');
+    }
+  }
+
+  function downloadText(filename, text, type){
+    const blob = new Blob([text], { type: (type||'text/plain')+';charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+
+  function csvCell(v){ const s = String(v==null?'':v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+  const PAY_CSV_HEAD = ['Month','Technician','Branch','Jobs','Sales','Commission','Retainer','Gross','Unresolved Follow Ups','Follow Up Deduction','Job Loss Penalties','Job Loss Deduction','Total Deductions','Net Pay'];
+  function payCsvRow(name, branch, s){
+    return [s.ym,name,branch||'',s.jobs,s.sales,s.commission,s.retainer,s.gross,s.fu,s.fuAmt,s.jlCount,s.jlAmt,s.deductions,s.net].map(csvCell).join(',');
+  }
+
+  /* ===== TECHNICIAN PAYROLL ===== */
+  let payRows = [];
+  function payTechList(){
+    const branch = document.getElementById('filterBranch').value;
+    const tech   = document.getElementById('filterTech').value;
+    return allTechs.filter(t => (branch==='all'||t.branch===branch) && (tech==='all'||t.name===tech))
+                   .sort((a,b) => String(a.name).localeCompare(String(b.name)));
+  }
+  function renderPayroll(){
+    const ym = document.getElementById('payMonth').value || pThisMonth();
+    const techs = payTechList();
+    payRows = techs.map(t => ({ t, s: computePay(allBookings.filter(b => b.technicianAssigned === t.name), allPenalties.filter(p => p.technicianName === t.name), ym) }));
+    document.getElementById('payRates').textContent = 'Retainer KES '+pKES(PAY.retainer)+' + '+pNum(PAY.commissionPct)+'% commission on '+(PAY.commissionBasis==='collected'?'collected':'charged')+' sales';
+    document.getElementById('payCount').textContent = payRows.length+' technician'+(payRows.length!==1?'s':'');
+    const body = document.getElementById('payBody');
+    if(!payRows.length){ body.innerHTML = '<tr class="empty-row"><td colspan="11">No technicians match the filters</td></tr>'; return; }
+    const tot = payRows.reduce((a,r) => ({ sales:a.sales+r.s.sales, comm:a.comm+r.s.commission, ret:a.ret+r.s.retainer, gross:a.gross+r.s.gross, fu:a.fu+r.s.fuAmt, jl:a.jl+r.s.jlAmt, net:a.net+r.s.net, jobs:a.jobs+r.s.jobs }), {sales:0,comm:0,ret:0,gross:0,fu:0,jl:0,net:0,jobs:0});
+    body.innerHTML = payRows.map((r,i) => `<tr>
+      <td class="td-name">${pEsc(r.t.name)}</td>
+      <td>${pEsc(r.t.branch||'--')}</td>
+      <td>${r.s.jobs}</td>
+      <td class="td-amount">${pKES(r.s.sales)}</td>
+      <td class="td-amount">${pKES(r.s.commission)}</td>
+      <td class="td-amount">${pKES(r.s.retainer)}</td>
+      <td class="td-amount">${pKES(r.s.gross)}</td>
+      <td class="td-amount">${pKES(r.s.fuAmt)}</td>
+      <td class="td-amount">${pKES(r.s.jlAmt)}</td>
+      <td class="td-amount" style="color:#00E676;font-weight:800">${pKES(r.s.net)}</td>
+      <td class="pen-col-action"><button type="button" class="btn-apply" data-pay="${i}" style="padding:6px 12px;font-size:11px">Payslip</button></td>
+    </tr>`).join('') + `<tr style="font-weight:800">
+      <td colspan="2">TOTAL</td><td>${tot.jobs}</td><td>${pKES(tot.sales)}</td><td>${pKES(tot.comm)}</td><td>${pKES(tot.ret)}</td><td>${pKES(tot.gross)}</td><td>${pKES(tot.fu)}</td><td>${pKES(tot.jl)}</td><td>${pKES(tot.net)}</td><td class="pen-col-action"></td></tr>`;
+  }
+  document.getElementById('payMonth').value = pThisMonth();
+  document.getElementById('payRunBtn').addEventListener('click', renderPayroll);
+  document.getElementById('applyBtn').addEventListener('click', renderPayroll);
+  document.getElementById('payMonth').addEventListener('change', renderPayroll);
+  document.getElementById('payBody').addEventListener('click', e => {
+    const btn = e.target.closest('[data-pay]');
+    if(!btn) return;
+    const r = payRows[parseInt(btn.getAttribute('data-pay'),10)];
+    if(r) openPayslip(r.t.name, r.t.branch, r.s);
+  });
+  document.getElementById('payCsvBtn').addEventListener('click', () => {
+    if(!payRows.length) return;
+    const ym = payRows[0].s.ym;
+    downloadText('Payroll_'+ym+'.csv', PAY_CSV_HEAD.join(',')+'\n'+payRows.map(r => payCsvRow(r.t.name, r.t.branch, r.s)).join('\n')+'\n', 'text/csv');
+  });
+  window.addEventListener('branchesLoaded', () => { if(allBookings.length){ generateReport(); } });
   let allTechs    = [];
   let allPenalties = [];
   let currentUserEmail = '';
@@ -461,9 +632,10 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
     currentUserEmail = user.email;
     document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
     document.getElementById('userName').textContent   = user.email.split('@')[0];
-    await Promise.all([loadBookings(), loadTechs(), loadPenalties()]);
+    await Promise.all([loadBookings(), loadTechs(), loadPenalties(), loadPayRates()]);
     populateTechFilter();
     generateReport();
+    renderPayroll();
   });
 
   document.getElementById('signOutBtn').addEventListener('click', async () => {
@@ -586,7 +758,7 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
 
   function renderBranchReport(data){
     const tbody=document.getElementById('branchReportBody');
-    const branches=['Nairobi','Nakuru','Eldoret','Mombasa','Kisumu','Kitale','Ecolife'];
+    const branches=(window.__branches||['Nairobi','Nakuru','Eldoret','Mombasa','Kisumu','Kitale','Ecolife']);
     const rows=branches.map(branch=>{
       const jobs=data.filter(b=>b.branch===branch);
       const completed=jobs.filter(b=>b.status==='Completed'||b.status==='Paid').length;
@@ -610,7 +782,7 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
 
   function renderCustomerRegion(data){
     const tbody=document.getElementById('customerRegionBody');
-    const branches=['Nairobi','Nakuru','Eldoret','Mombasa','Kisumu','Kitale','Ecolife'];
+    const branches=(window.__branches||['Nairobi','Nakuru','Eldoret','Mombasa','Kisumu','Kitale','Ecolife']);
     const rows=branches.map(branch=>{
       const jobs=data.filter(b=>b.branch===branch);
       const sales=jobs.reduce((s,b)=>s+(parseFloat(b.amountCharged)||0),0);
@@ -837,5 +1009,110 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
   function fDate(val){ if(!val) return '--'; const d=new Date(val); return isNaN(d)?val:d.toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'}); }
   function esc(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
+
+<!-- SETTINGS INTEGRATION: profile photo, dynamic branches, preferences -->
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+  const app  = getApp();
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  const DEFAULTS = ['Nairobi','Nakuru','Eldoret','Mombasa','Kisumu','Kitale','Ecolife'];
+  const ls = {
+    get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+    set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+  };
+
+  function paintProfile(p, email){
+    if(!p) return;
+    const av = document.getElementById('userAvatar');
+    if(av){
+      if(p.photoURL){
+        av.style.backgroundImage = 'url("'+String(p.photoURL).replace(/"/g,'%22')+'")';
+        av.style.backgroundSize = 'cover';
+        av.style.backgroundPosition = 'center';
+        av.style.color = 'transparent';
+      }
+      const un = document.getElementById('userName');
+      if(un && p.displayName) un.textContent = p.displayName;
+    } else if(p.photoURL && document.getElementById('techNameBadge') && !document.getElementById('techPhoto')){
+      const img = document.createElement('img');
+      img.id = 'techPhoto';
+      img.src = p.photoURL;
+      img.alt = '';
+      img.style.cssText = 'width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid rgba(0,230,118,0.35);margin-right:4px';
+      const badge = document.getElementById('techNameBadge');
+      badge.parentNode.insertBefore(img, badge);
+    }
+  }
+
+  function applyBranches(list){
+    window.__branches = list;
+    document.querySelectorAll('select').forEach(sel => {
+      const opts = Array.from(sel.options);
+      if(!opts.some(o => DEFAULTS.includes((o.value||o.text).trim()))) return;
+      const current = sel.value;
+      opts.forEach(o => { if(DEFAULTS.includes((o.value||o.text).trim())) o.remove(); });
+      list.forEach(n => {
+        const o = document.createElement('option');
+        o.value = n; o.textContent = n;
+        sel.appendChild(o);
+      });
+      if(Array.from(sel.options).some(o => o.value === current)) sel.value = current;
+    });
+    window.dispatchEvent(new Event('branchesLoaded'));
+  }
+
+  async function extendTechStrip(list){
+    const strip = document.querySelector('.summary-strip');
+    if(!strip || !document.getElementById('countNairobi')) return;
+    const extra = list.filter(n => !DEFAULTS.includes(n));
+    if(!extra.length) return;
+    try{
+      const s = await getDocs(collection(db,'technicians'));
+      const techs = s.docs.map(d => d.data());
+      extra.forEach(n => {
+        const d = document.createElement('div');
+        d.className = 'strip-item';
+        const a = document.createElement('span'); a.className = 'strip-label'; a.textContent = n;
+        const b = document.createElement('span'); b.className = 'strip-value'; b.textContent = techs.filter(t => t.branch === n).length;
+        d.appendChild(a); d.appendChild(b);
+        strip.appendChild(d);
+      });
+    }catch(e){ console.error(e); }
+  }
+
+  async function loadBranches(){
+    try{
+      const s = await getDocs(collection(db,'branches'));
+      const rows = s.docs.map(d => d.data()).filter(b => b && b.name && b.active !== false);
+      if(!rows.length) return;
+      rows.sort((a,b) => (a.order||0)-(b.order||0) || String(a.name).localeCompare(String(b.name)));
+      const list = rows.map(b => b.name);
+      applyBranches(list);
+      extendTechStrip(list);
+    }catch(e){ console.error('Branches not loaded, using defaults', e); }
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if(!user) return;
+    const email = (user.email||'').toLowerCase();
+    const cached = ls.get('ecolife_profile_'+email);
+    if(cached){ try{ paintProfile(JSON.parse(cached), email); }catch(e){} }
+    try{
+      const s = await getDoc(doc(db,'profiles',email));
+      if(s.exists()){
+        const p = s.data();
+        ls.set('ecolife_profile_'+email, JSON.stringify({photoURL:p.photoURL||'', displayName:p.displayName||''}));
+        paintProfile(p, email);
+        setTimeout(() => paintProfile(p, email), 1500);
+      }
+    }catch(e){ console.error('Profile not loaded', e); }
+    loadBranches();
+  });
+</script>
+
 </body>
 </html>
