@@ -1,1 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecolife System | Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
+:root{
+  --bg:#060D06;
+  --bg-card:#0C160C;
+  --bg-input:#0F1A0F;
+  --sidebar-bg:#080F08;
+  --topbar-bg:#0A120A;
+  --green:#00E676;
+  --green-dim:#00C853;
+  --green-glow:rgba(0,230,118,0.08);
+  --green-border:rgba(0,230,118,0.18);
+  --green-border-strong:rgba(0,230,118,0.35);
+  --white:#E8F5E9;
+  --gray:#6B8F71;
+  --gray-dim:#3D5E42;
+  --text:#C8E6C9;
+  --text-dim:#8BAD8F;
+  --error:#FF5252;
+  --sidebar-w:240px;
+}
+
+html,body{height:100%;font-family:'Inter',sans-serif;color:var(--text);background:var(--bg)}
+
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 10% 10%,rgba(0,230,118,0.05) 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,rgba(0,200,83,0.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,230,118,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,230,118,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--sidebar-bg);border-right:1px solid var(--green-border);display:flex;flex-direction:column;z-index:100;transition:transform 0.3s}
+.sidebar-brand{padding:22px 20px 18px;border-bottom:1px solid var(--green-border);display:flex;align-items:center;gap:12px}
+.sidebar-brand img{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1.5px solid var(--green-border-strong);flex-shrink:0;box-shadow:0 0 12px rgba(0,230,118,0.15)}
+.brand-text{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:var(--green);letter-spacing:0.06em;line-height:1.2}
+.brand-text span{display:block;font-weight:500;font-size:10px;color:var(--gray);letter-spacing:0.1em;text-transform:uppercase}
+.sidebar-nav{flex:1;padding:14px 0;overflow-y:auto}
+.nav-section-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dim);padding:10px 20px 6px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 20px;cursor:pointer;color:var(--text-dim);font-size:15px;font-weight:500;transition:all 0.2s;border-left:2px solid transparent;text-decoration:none}
+.nav-item:hover{background:var(--green-glow);color:var(--white)}
+.nav-item.active{background:rgba(0,230,118,0.08);color:var(--green);border-left-color:var(--green)}
+.nav-icon{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--green-border)}
+.user-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:rgba(0,230,118,0.1);border:1px solid var(--green-border-strong);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--green);flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:14px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:10px;color:var(--gray);letter-spacing:0.08em;text-transform:uppercase}
+.btn-signout{width:100%;padding:8px;background:rgba(255,82,82,0.06);border:1px solid rgba(255,82,82,0.15);border-radius:7px;color:rgba(255,130,130,0.7);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-signout:hover{background:rgba(255,82,82,0.12);border-color:rgba(255,82,82,0.3);color:#FF8A80}
+
+.topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:60px;background:var(--topbar-bg);border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:90;gap:12px}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;color:var(--gray)}
+.menu-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--white);letter-spacing:0.04em}
+.btn-print{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:rgba(0,230,118,0.08);color:var(--green);font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;border-radius:7px;border:1px solid var(--green-border-strong);cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;text-transform:uppercase}
+.btn-print:hover{background:rgba(0,230,118,0.15)}
+.btn-print svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.main{margin-left:var(--sidebar-w);padding-top:60px;min-height:100vh;position:relative;z-index:1}
+.main-inner{padding:24px}
+
+/* FILTER CARD */
+.filter-card{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;padding:18px 20px;margin-bottom:24px}
+.filter-card-title{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.filter-group{display:flex;flex-direction:column;gap:5px;min-width:130px}
+.filter-group label{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em}
+.filter-select,.filter-date{padding:9px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:12.5px;color:var(--text);background:var(--bg-input);outline:none;cursor:pointer;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236B8F71' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:28px}
+.filter-date{background-image:none;padding-right:12px}
+.filter-select:focus,.filter-date:focus{border-color:var(--green-dim)}
+.btn-apply{padding:9px 20px;background:linear-gradient(135deg,#00C853,#00A846);color:#050D05;font-family:'Montserrat',sans-serif;font-weight:800;font-size:12px;border:none;border-radius:7px;cursor:pointer;transition:all 0.2s;white-space:nowrap;align-self:flex-end;text-transform:uppercase;letter-spacing:0.04em}
+.btn-apply:hover{background:linear-gradient(135deg,#00E676,#00C853);box-shadow:0 4px 14px rgba(0,200,83,0.3)}
+
+/* SUMMARY */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.sum-card{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;padding:16px;position:relative;overflow:hidden;transition:all 0.2s}
+.sum-card:hover{border-color:var(--green-border-strong);box-shadow:0 0 16px rgba(0,230,118,0.07)}
+.sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green-dim),transparent);opacity:0.5}
+.sum-label{font-size:10px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.sum-value{font-family:'Montserrat',sans-serif;font-weight:800;font-size:24px;color:var(--white);line-height:1}
+.sum-sub{font-size:11px;color:var(--gray);margin-top:4px}
+
+/* REPORT SECTIONS */
+.report-section{background:var(--bg-card);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.report-section-header{padding:14px 20px;border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between}
+.report-section-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--white);letter-spacing:0.04em}
+.report-count{font-size:11px;color:var(--text-dim);font-weight:500}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:500px}
+thead th{background:rgba(0,230,118,0.04);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);padding:11px 16px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--green-border)}
+tbody tr{border-bottom:1px solid rgba(0,230,118,0.06);transition:background 0.15s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--green-glow)}
+tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middle}
+.td-name{font-weight:600;color:var(--white)}
+.td-amount{font-family:'Montserrat',sans-serif;font-weight:700;color:var(--white)}
+.td-balance{font-family:'Montserrat',sans-serif;font-weight:700;color:#FF8A80}
+.td-balance.clear{color:var(--green)}
+.td-rank{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:var(--green);width:32px}
+
+.progress-wrap{display:flex;align-items:center;gap:8px}
+.progress-bar-bg{flex:1;height:5px;background:rgba(0,230,118,0.1);border-radius:3px;overflow:hidden;min-width:50px}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--green-dim),var(--green));border-radius:3px;transition:width 0.4s}
+.progress-pct{font-size:11px;color:var(--text-dim);font-weight:600;white-space:nowrap}
+
+.status-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;white-space:nowrap}
+.status-badge.pending{background:rgba(251,183,36,0.1);color:#FBB724;border:1px solid rgba(251,183,36,0.2)}
+.status-badge.assigned{background:rgba(59,130,246,0.1);color:#60A5FA;border:1px solid rgba(59,130,246,0.2)}
+.status-badge.completed{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
+.status-badge.paid{background:rgba(0,200,83,0.15);color:#69F0AE;border:1px solid rgba(0,200,83,0.25)}
+.status-badge.completed-awaiting-verification{background:rgba(96,165,250,0.12);color:#60A5FA;border:1px solid rgba(96,165,250,0.25)}
+.status-badge.resolved{background:rgba(0,230,118,0.15);color:var(--green);border:1px solid rgba(0,230,118,0.3)}
+.status-badge.lost{background:rgba(255,82,82,0.1);color:#FF8A80;border:1px solid rgba(255,82,82,0.25)}
+.status-badge.pending-deduction{background:rgba(251,146,60,0.12);color:#FB923C;border:1px solid rgba(251,146,60,0.28)}
+.status-badge.deducted{background:rgba(192,132,252,0.12);color:#C084FC;border:1px solid rgba(192,132,252,0.28)}
+.status-badge.waived{background:rgba(148,163,184,0.12);color:#94A3B8;border:1px solid rgba(148,163,184,0.25)}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--green-border);gap:10px;flex-wrap:wrap}
+.pagination-info{font-size:12px;color:var(--text-dim)}
+.pagination-btns{display:flex;gap:6px;flex-wrap:wrap}
+.page-btn{padding:6px 12px;border:1px solid var(--green-border);border-radius:6px;font-size:12px;font-weight:600;color:var(--text-dim);background:transparent;cursor:pointer;transition:all 0.2s}
+.page-btn:hover:not(:disabled){border-color:var(--green-border-strong);color:var(--green)}
+.page-btn:disabled{opacity:0.35;cursor:not-allowed}
+.page-btn.active{background:var(--green-dim);color:#050D05;border-color:var(--green-dim)}
+.pen-actions{display:flex;gap:6px;flex-wrap:nowrap}
+.pen-btn{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;background:rgba(0,230,118,0.08);color:var(--green);border:1px solid var(--green-border-strong);transition:all 0.2s}
+.pen-btn:hover{background:rgba(0,230,118,0.16)}
+.pen-btn.waive{background:rgba(148,163,184,0.1);color:#94A3B8;border-color:rgba(148,163,184,0.3)}
+.pen-btn.waive:hover{background:rgba(148,163,184,0.2)}
+.pen-btn.pend{background:rgba(251,146,60,0.1);color:#FB923C;border-color:rgba(251,146,60,0.3)}
+.pen-btn.pend:hover{background:rgba(251,146,60,0.2)}
+
+.empty-row td{text-align:center;color:var(--gray);padding:32px;font-size:14px}
+
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99}
+
+@media print{
+  .sidebar,.topbar,.filter-card,.sidebar-overlay,.btn-print,.menu-toggle{display:none!important}
+  .main{margin-left:0;padding-top:0;background:#fff}
+  .main-inner{padding:0}
+  body{background:#fff;color:#111}
+  .report-section{break-inside:avoid;border:1px solid #ccc;margin-bottom:16px;background:#fff}
+  .summary-grid{grid-template-columns:repeat(4,1fr)}
+  thead th{background:#f3f4f6;color:#374151}
+  tbody td{color:#111}
+  .td-name,.td-amount{color:#111}
+  .sum-value{color:#111}
+}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block}
+  .topbar{left:0}
+  .main{margin-left:0}
+  .menu-toggle{display:flex}
+  .main-inner{padding:16px}
+  .filter-row{gap:8px}
+  .filter-group{min-width:110px}
+}
+@media print{.pagination,.pen-col-action{display:none!important}}
+body.tech-mode .sidebar,body.tech-mode .sidebar-overlay{display:none!important}
+body.tech-mode .topbar{left:0}
+body.tech-mode .main{margin-left:0}
+body.tech-mode .menu-toggle{display:none}
+body.tech-mode .admin-only{display:none!important}
+body:not(.tech-mode) .tech-only{display:none!important}
+.set-wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.set-card{background:var(--bg-card);border:1px solid var(--green-border);border-radius:12px;overflow:hidden}
+.set-head{padding:14px 20px;border-bottom:1px solid var(--green-border)}
+.set-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--white);letter-spacing:0.04em}
+.set-desc{font-size:12px;color:var(--text-dim);margin-top:4px;line-height:1.5}
+.set-body{padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.f-group{display:flex;flex-direction:column;gap:5px;min-width:0}
+.f-group label{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em}
+.f-input{padding:10px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:var(--bg-input);outline:none;width:100%}
+.f-input:focus{border-color:var(--green-dim)}
+.f-input[readonly]{opacity:0.7}
+.f-hint{font-size:11.5px;color:var(--text-dim);line-height:1.5}
+.s-btn{padding:10px 18px;background:linear-gradient(135deg,#00C853,#00A846);color:#050D05;font-family:'Montserrat',sans-serif;font-weight:800;font-size:12px;border:none;border-radius:7px;cursor:pointer;align-self:flex-start}
+.s-btn:disabled{opacity:0.5;cursor:default}
+.s-btn.alt{background:rgba(0,230,118,0.08);color:var(--green);border:1px solid var(--green-border-strong)}
+.s-btn.sm{padding:6px 12px;font-size:11px}
+.s-btn.warn{background:rgba(255,82,82,0.08);color:#FF8A80;border:1px solid rgba(255,82,82,0.3)}
+.s-actions{display:flex;gap:8px;flex-wrap:wrap}
+.prof-row{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.avatar-lg{width:84px;height:84px;border-radius:50%;background:rgba(0,230,118,0.1) center/cover no-repeat;border:2px solid var(--green-border-strong);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:800;font-size:30px;color:var(--green);flex-shrink:0}
+.b-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid rgba(0,230,118,0.08);flex-wrap:wrap}
+.b-row:last-child{border-bottom:none}
+.b-name{font-weight:600;color:var(--white);font-size:14px}
+.b-badge{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;background:rgba(0,230,118,0.1);color:var(--green);border:1px solid var(--green-border)}
+.b-badge.off{background:rgba(148,163,184,0.1);color:#94A3B8;border-color:rgba(148,163,184,0.25)}
+.b-add{display:flex;gap:8px;margin-top:6px}
+.b-add .f-input{flex:1}
+.sw-row{display:flex;justify-content:space-between;align-items:center;gap:14px}
+.sw{position:relative;width:46px;height:26px;flex-shrink:0}
+.sw input{opacity:0;width:0;height:0}
+.sw span{position:absolute;inset:0;background:#26402A;border-radius:26px;cursor:pointer;transition:0.2s}
+.sw span::before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:#C8E6C9;border-radius:50%;transition:0.2s}
+.sw input:checked+span{background:var(--green-dim)}
+.sw input:checked+span::before{transform:translateX(20px)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid rgba(0,230,118,0.08);font-size:14px}
+.kv:last-child{border-bottom:none}
+.kv b{color:var(--white)}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0C160C;border:1px solid var(--green-border-strong);color:var(--white);padding:11px 18px;border-radius:9px;font-size:13px;z-index:999;opacity:0;pointer-events:none;transition:opacity 0.25s;max-width:90vw;text-align:center}
+#toast.show{opacity:1}
+#toast.err{border-color:rgba(255,82,82,0.5);color:#FF8A80}
+@media(max-width:600px){.f-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="overlay"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="https://res.cloudinary.com/hztm3zo8/image/upload/v1782422764/FB_IMG_1781877214514_qq7dt6.jpg" alt="Ecolife">
+    <div class="brand-text">ECOLIFE <span>Operations System</span></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="../dashboard/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="../bookings/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Bookings
+    </a>
+    <a class="nav-item" href="../new-booking/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      New Booking
+    </a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="../technicians/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Technicians
+    </a>
+    <a class="nav-item" href="../reports/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Reports
+    </a>
+    <a class="nav-item active" href="../settings/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar" id="userAvatar">E</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-role">Admin</div>
+      </div>
+    </div>
+    <button class="btn-signout" id="signOutBtn">
+      <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </button>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <button class="menu-toggle" id="menuToggle">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span class="page-title">Settings</span>
+  </div>
+  <a class="btn-print tech-only" href="../technician-view/" style="text-decoration:none">Back to My Jobs</a>
+</div>
+
+<main class="main">
+  <div class="main-inner">
+  <div class="set-wrap">
+
+    <div class="set-card">
+      <div class="set-head"><div class="set-title">My Profile</div><div class="set-desc">Your photo appears next to your name across the system.</div></div>
+      <div class="set-body">
+        <div class="prof-row">
+          <div class="avatar-lg" id="profPhoto">E</div>
+          <div class="s-actions" style="flex-direction:column">
+            <input type="file" id="photoFile" accept="image/*" style="display:none">
+            <button class="s-btn alt" id="photoBtn" type="button">Choose Photo</button>
+            <span class="f-hint" id="photoMsg">JPG or PNG. It is resized automatically.</span>
+          </div>
+        </div>
+        <div class="f-row">
+          <div class="f-group"><label>Display Name</label><input class="f-input" id="dispName" maxlength="40" placeholder="Your name"><span class="f-hint tech-only">Shown on your profile only. Your name on jobs and payslips is set by the admin.</span></div>
+          <div class="f-group"><label>Email</label><input class="f-input" id="profEmail" readonly></div>
+        </div>
+        <button class="s-btn" id="saveProfile" type="button">Save Profile</button>
+      </div>
+    </div>
+
+    <div class="set-card tech-only">
+      <div class="set-head"><div class="set-title">My Details</div><div class="set-desc">Set by the admin. Contact the office if something is wrong.</div></div>
+      <div class="set-body" id="techDetails"></div>
+    </div>
+
+    <div class="set-card">
+      <div class="set-head"><div class="set-title">Notifications and Security</div></div>
+      <div class="set-body">
+        <div class="sw-row">
+          <div><div class="b-name">Browser notifications</div><div class="f-hint">Alert me about new bookings on this device.</div></div>
+          <label class="sw"><input type="checkbox" id="notifyToggle"><span></span></label>
+        </div>
+        <div class="s-actions"><button class="s-btn alt" id="resetPw" type="button">Send Password Reset Email</button></div>
+        <div class="f-hint">A reset link is emailed to your sign in address.</div>
+      </div>
+    </div>
+
+    <div class="set-card admin-only">
+      <div class="set-head"><div class="set-title">Branches</div><div class="set-desc">Add, rename or hide branches. These lists update everywhere. Renaming also updates existing bookings, technicians and penalties for that branch. Branches are never deleted, only hidden.</div></div>
+      <div class="set-body">
+        <div id="branchList"><div class="f-hint">Loading...</div></div>
+        <div class="b-add"><input class="f-input" id="newBranch" maxlength="40" placeholder="New branch name"><button class="s-btn" id="addBranch" type="button">Add</button></div>
+      </div>
+    </div>
+
+    <div class="set-card admin-only">
+      <div class="set-head"><div class="set-title">Technician Pay</div><div class="set-desc">Used for technician earnings and payslips. Each technician earns the retainer plus commission on sales, less follow up (KES 250 each) and job loss penalties. Changes apply to all months because earnings are calculated live.</div></div>
+      <div class="set-body">
+        <div class="f-row">
+          <div class="f-group"><label>Monthly Retainer (KES)</label><input class="f-input" id="payRetainer" type="number" min="0" step="100" inputmode="numeric"></div>
+          <div class="f-group"><label>Commission (%)</label><input class="f-input" id="payPct" type="number" min="0" max="100" step="0.5" inputmode="decimal"></div>
+        </div>
+        <div class="f-group"><label>Commission Based On</label>
+          <select class="f-input" id="payBasis"><option value="charged">Amount charged (total sales)</option><option value="collected">Amount collected (paid so far)</option></select>
+        </div>
+        <button class="s-btn" id="savePay" type="button">Save Pay Settings</button>
+      </div>
+    </div>
+
+    <div class="set-card admin-only">
+      <div class="set-head"><div class="set-title">Company Details</div><div class="set-desc">Printed at the top of payslips.</div></div>
+      <div class="set-body">
+        <div class="f-row">
+          <div class="f-group"><label>Company Name</label><input class="f-input" id="coName" maxlength="60"></div>
+          <div class="f-group"><label>Phone</label><input class="f-input" id="coPhone" maxlength="30"></div>
+        </div>
+        <div class="f-row">
+          <div class="f-group"><label>Email</label><input class="f-input" id="coEmail" maxlength="60"></div>
+          <div class="f-group"><label>Address</label><input class="f-input" id="coAddress" maxlength="80"></div>
+        </div>
+        <div class="f-group"><label>Payslip Note (optional)</label><input class="f-input" id="coNote" maxlength="160" placeholder="Shown at the bottom of every payslip"></div>
+        <button class="s-btn" id="saveCo" type="button">Save Company Details</button>
+      </div>
+    </div>
+
+    <div class="set-card admin-only">
+      <div class="set-head"><div class="set-title">Data Export</div><div class="set-desc">Download a backup copy as CSV files.</div></div>
+      <div class="set-body"><div class="s-actions">
+        <button class="s-btn alt" id="expBookings" type="button">Download Bookings</button>
+        <button class="s-btn alt" id="expTechs" type="button">Download Technicians</button>
+      </div></div>
+    </div>
+
+  </div>
+  </div>
+</main>
+<div id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, setDoc, query, where, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBxi76PxDat-G5bjcUQ2MmPe0mGcTE-izs",
+    authDomain: "ecolife-system-ff2d6.firebaseapp.com",
+    databaseURL: "https://ecolife-system-ff2d6-default-rtdb.firebaseio.com",
+    projectId: "ecolife-system-ff2d6",
+    storageBucket: "ecolife-system-ff2d6.firebasestorage.app",
+    messagingSenderId: "421807560122",
+    appId: "1:421807560122:web:877a49223b03ba4a477983"
+  };
+  const CLOUD_NAME = 'hztm3zo8';
+  const UPLOAD_PRESET = 'Ecolife_Unsigned';
+  const ADMIN_EMAIL = 'ecolifepestguard@gmail.com';
+  const DEFAULT_BRANCHES = ['Nairobi','Nakuru','Eldoret','Mombasa','Kisumu','Kitale','Ecolife'];
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let me = { email:'', key:'', isAdmin:false, tech:null };
+  let branchDocs = [];
+  const $ = id => document.getElementById(id);
+  const lsGet = k => { try{ return localStorage.getItem(k); }catch(e){ return null; } };
+  const lsSet = (k,v) => { try{ localStorage.setItem(k,v); }catch(e){} };
+
+  function toast(msg, err){
+    const t = $('toast');
+    t.textContent = msg;
+    t.className = 'show'+(err?' err':'');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => { t.className = ''; }, 3200);
+  }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fKES(v){ return Math.round(parseFloat(v)||0).toLocaleString('en-KE'); }
+  function setBusy(btn, busy, label){ btn.disabled = busy; if(label) btn.textContent = label; }
+  function download(name, text){
+    const blob = new Blob([text], { type:'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+  function csvCell(v){ const s = String(v==null?'':v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+
+  $('menuToggle').addEventListener('click', () => { $('sidebar').classList.toggle('open'); $('overlay').classList.toggle('show'); });
+  $('overlay').addEventListener('click', () => { $('sidebar').classList.remove('open'); $('overlay').classList.remove('show'); });
+  $('signOutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = '../'; });
+
+  /* ---------- auth and role ---------- */
+  onAuthStateChanged(auth, async (user) => {
+    if(!user){ window.location.href = '../'; return; }
+    me.email = user.email;
+    me.key = (user.email||'').toLowerCase();
+    me.isAdmin = user.email === ADMIN_EMAIL;
+    if(!me.isAdmin){
+      try{
+        const s = await getDocs(collection(db,'technicians'));
+        s.forEach(d => { if(d.data().email === user.email) me.tech = { id:d.id, ...d.data() }; });
+      }catch(e){ console.error(e); }
+      if(!me.tech){ window.location.href = '../'; return; }
+      document.body.classList.add('tech-mode');
+    }
+    $('profEmail').value = user.email;
+    $('userName').textContent = user.email.split('@')[0];
+    $('userAvatar').textContent = user.email.charAt(0).toUpperCase();
+    $('notifyToggle').checked = lsGet('ecolife_notify') !== 'off';
+    await loadProfile();
+    if(me.isAdmin){
+      await Promise.all([loadBranches(), loadPay(), loadCompany()]);
+    } else {
+      await renderTechDetails();
+    }
+  });
+
+  /* ---------- profile ---------- */
+  function paintPhoto(url, name){
+    const big = $('profPhoto');
+    const av = $('userAvatar');
+    const initial = ((name||me.email||'E').charAt(0)||'E').toUpperCase();
+    if(url){
+      const css = 'url("'+String(url).replace(/"/g,'%22')+'")';
+      big.style.backgroundImage = css; big.textContent = '';
+      av.style.backgroundImage = css; av.style.backgroundSize = 'cover'; av.style.backgroundPosition = 'center'; av.style.color = 'transparent';
+    } else {
+      big.style.backgroundImage = ''; big.textContent = initial;
+    }
+  }
+  async function loadProfile(){
+    let p = {};
+    try{ const s = await getDoc(doc(db,'profiles',me.key)); if(s.exists()) p = s.data(); }catch(e){ console.error(e); }
+    $('dispName').value = p.displayName || (me.tech ? me.tech.name : '') || '';
+    if(p.displayName) $('userName').textContent = p.displayName;
+    paintPhoto(p.photoURL, p.displayName || (me.tech && me.tech.name));
+  }
+  function cacheProfile(patch){
+    let cur = {};
+    try{ cur = JSON.parse(lsGet('ecolife_profile_'+me.key) || '{}'); }catch(e){}
+    lsSet('ecolife_profile_'+me.key, JSON.stringify(Object.assign(cur, patch)));
+  }
+
+  async function resizeImage(file){
+    try{
+      const bmp = await createImageBitmap(file);
+      const size = 480;
+      const side = Math.min(bmp.width, bmp.height);
+      const cv = document.createElement('canvas');
+      cv.width = size; cv.height = size;
+      cv.getContext('2d').drawImage(bmp, (bmp.width-side)/2, (bmp.height-side)/2, side, side, 0, 0, size, size);
+      const blob = await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.86));
+      return blob || file;
+    }catch(e){ return file; }
+  }
+  async function uploadToCloudinary(file){
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', UPLOAD_PRESET);
+    const r = await fetch('https://api.cloudinary.com/v1_1/'+CLOUD_NAME+'/image/upload', { method:'POST', body:fd });
+    if(!r.ok) throw new Error('Upload failed ('+r.status+')');
+    const j = await r.json();
+    if(!j.secure_url) throw new Error('No image URL returned');
+    return j.secure_url;
+  }
+
+  $('photoBtn').addEventListener('click', () => $('photoFile').click());
+  $('photoFile').addEventListener('change', async () => {
+    const f = $('photoFile').files[0];
+    if(!f) return;
+    if(!/^image\//.test(f.type)){ toast('Please choose an image file', true); return; }
+    if(f.size > 15*1024*1024){ toast('Image is too large (15 MB max)', true); return; }
+    setBusy($('photoBtn'), true, 'Uploading...');
+    $('photoMsg').textContent = 'Uploading photo...';
+    try{
+      const blob = await resizeImage(f);
+      const url = await uploadToCloudinary(blob);
+      await setDoc(doc(db,'profiles',me.key), { email:me.email, photoURL:url, updatedAt:serverTimestamp() }, { merge:true });
+      cacheProfile({ photoURL:url });
+      paintPhoto(url, $('dispName').value);
+      $('photoMsg').textContent = 'Photo updated.';
+      toast('Profile photo updated');
+    }catch(e){
+      console.error(e);
+      $('photoMsg').textContent = 'Upload failed. Check your connection and try again.';
+      toast('Photo upload failed', true);
+    }
+    setBusy($('photoBtn'), false, 'Choose Photo');
+    $('photoFile').value = '';
+  });
+
+  $('saveProfile').addEventListener('click', async () => {
+    const name = $('dispName').value.trim();
+    setBusy($('saveProfile'), true, 'Saving...');
+    try{
+      await setDoc(doc(db,'profiles',me.key), { email:me.email, displayName:name, updatedAt:serverTimestamp() }, { merge:true });
+      cacheProfile({ displayName:name });
+      if(name) $('userName').textContent = name;
+      toast('Profile saved');
+    }catch(e){ console.error(e); toast('Could not save profile', true); }
+    setBusy($('saveProfile'), false, 'Save Profile');
+  });
+
+  async function renderTechDetails(){
+    const t = me.tech || {};
+    let pay = { retainer:12000, commissionPct:7 };
+    try{ const s = await getDoc(doc(db,'settings','payroll')); if(s.exists()) pay = Object.assign(pay, s.data()); }catch(e){}
+    const kv = (a,b) => '<div class="kv"><span>'+a+'</span><b>'+esc(b||'--')+'</b></div>';
+    $('techDetails').innerHTML = kv('Name', t.name) + kv('Branch', t.branch) + kv('Phone', t.phone) + kv('Email', t.email)
+      + kv('Monthly retainer', 'KES '+fKES(pay.retainer)) + kv('Commission on sales', (parseFloat(pay.commissionPct)||0)+'%');
+  }
+
+  /* ---------- notifications and password ---------- */
+  $('notifyToggle').addEventListener('change', async () => {
+    const on = $('notifyToggle').checked;
+    lsSet('ecolife_notify', on ? 'on' : 'off');
+    if(on && 'Notification' in window && Notification.permission === 'default'){
+      try{ await Notification.requestPermission(); }catch(e){}
+    }
+    toast(on ? 'Notifications on for this device' : 'Notifications off for this device');
+  });
+  $('resetPw').addEventListener('click', async () => {
+    setBusy($('resetPw'), true, 'Sending...');
+    try{ await sendPasswordResetEmail(auth, me.email); toast('Reset email sent to '+me.email); }
+    catch(e){ console.error(e); toast('Could not send reset email', true); }
+    setBusy($('resetPw'), false, 'Send Password Reset Email');
+  });
+
+  /* ---------- branches (admin) ---------- */
+  function slug(n){ return n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || ('b'+Date.now()); }
+  async function loadBranches(){
+    try{
+      const s = await getDocs(collection(db,'branches'));
+      branchDocs = s.docs.map(d => ({ id:d.id, ...d.data() }));
+      branchDocs.sort((a,b) => (a.order||0)-(b.order||0) || String(a.name).localeCompare(String(b.name)));
+    }catch(e){ console.error(e); toast('Could not load branches', true); branchDocs = []; }
+    renderBranches();
+  }
+  function renderBranches(){
+    const el = $('branchList');
+    if(!branchDocs.length){
+      el.innerHTML = '<div class="f-hint" style="margin-bottom:8px">Using the default branches until you save your own list. Adding or editing one saves all of these first.</div>'
+        + DEFAULT_BRANCHES.map(n => '<div class="b-row"><div><span class="b-name">'+esc(n)+'</span><span class="b-badge">Default</span></div></div>').join('')
+        + '<div class="b-row"><button class="s-btn alt sm" id="seedBtn" type="button">Save as my branch list</button></div>';
+      const sb = $('seedBtn'); if(sb) sb.addEventListener('click', async () => { await ensureSeeded(); await loadBranches(); toast('Branch list saved'); });
+      return;
+    }
+    el.innerHTML = branchDocs.map(b => '<div class="b-row"><div><span class="b-name">'+esc(b.name)+'</span><span class="b-badge'+(b.active===false?' off':'')+'">'+(b.active===false?'Hidden':'Active')+'</span></div>'
+      + '<div class="s-actions"><button class="s-btn alt sm" data-ren="'+esc(b.id)+'" type="button">Rename</button>'
+      + '<button class="s-btn '+(b.active===false?'alt':'warn')+' sm" data-tog="'+esc(b.id)+'" type="button">'+(b.active===false?'Show':'Hide')+'</button></div></div>').join('');
+  }
+  async function ensureSeeded(){
+    if(branchDocs.length) return;
+    const b = writeBatch(db);
+    DEFAULT_BRANCHES.forEach((n,i) => b.set(doc(db,'branches',slug(n)), { name:n, active:true, order:i+1, createdAt:serverTimestamp() }));
+    await b.commit();
+    await loadBranches();
+  }
+  $('addBranch').addEventListener('click', async () => {
+    const name = $('newBranch').value.trim().replace(/\s+/g,' ');
+    if(!name){ toast('Enter a branch name', true); return; }
+    const all = branchDocs.length ? branchDocs.map(b => b.name) : DEFAULT_BRANCHES;
+    if(all.some(n => n.toLowerCase() === name.toLowerCase())){ toast('That branch already exists', true); return; }
+    setBusy($('addBranch'), true, 'Adding...');
+    try{
+      await ensureSeeded();
+      const order = branchDocs.reduce((m,b) => Math.max(m, b.order||0), 0) + 1;
+      await setDoc(doc(db,'branches',slug(name)), { name, active:true, order, createdAt:serverTimestamp() });
+      $('newBranch').value = '';
+      await loadBranches();
+      toast(name+' added');
+    }catch(e){ console.error(e); toast('Could not add branch', true); }
+    setBusy($('addBranch'), false, 'Add');
+  });
+
+  async function commitInChunks(refs, patch){
+    for(let i=0;i<refs.length;i+=400){
+      const b = writeBatch(db);
+      refs.slice(i,i+400).forEach(r => b.update(r, patch));
+      await b.commit();
+    }
+  }
+  async function renameBranch(id){
+    const cur = branchDocs.find(b => b.id === id);
+    if(!cur) return;
+    const input = window.prompt('New name for "'+cur.name+'"', cur.name);
+    if(input === null) return;
+    const name = input.trim().replace(/\s+/g,' ');
+    if(!name || name === cur.name) return;
+    if(branchDocs.some(b => b.id !== id && b.name.toLowerCase() === name.toLowerCase())){ toast('That name is already used', true); return; }
+    try{
+      const q = c => getDocs(query(collection(db,c), where('branch','==',cur.name)));
+      const [bk, tc, jl] = await Promise.all([q('bookings'), q('technicians'), q('joblosses')]);
+      const msg = 'Rename "'+cur.name+'" to "'+name+'"?\n\nThis will also update '+bk.size+' booking(s), '+tc.size+' technician(s) and '+jl.size+' penalty record(s).';
+      if(!window.confirm(msg)) return;
+      toast('Updating records, please wait...');
+      await commitInChunks(bk.docs.map(d => d.ref), { branch:name });
+      await commitInChunks(tc.docs.map(d => d.ref), { branch:name });
+      await commitInChunks(jl.docs.map(d => d.ref), { branch:name });
+      await setDoc(doc(db,'branches',id), { name }, { merge:true });
+      await loadBranches();
+      toast('Branch renamed');
+    }catch(e){ console.error(e); toast('Rename failed. Nothing was lost, try again.', true); }
+  }
+  async function toggleBranch(id){
+    const cur = branchDocs.find(b => b.id === id);
+    if(!cur) return;
+    const hide = cur.active !== false;
+    if(hide && !window.confirm('Hide "'+cur.name+'" from all dropdowns? Existing records keep this branch name.')) return;
+    try{
+      await setDoc(doc(db,'branches',id), { active: !hide }, { merge:true });
+      await loadBranches();
+      toast(hide ? 'Branch hidden' : 'Branch shown');
+    }catch(e){ console.error(e); toast('Could not update branch', true); }
+  }
+  $('branchList').addEventListener('click', async e => {
+    const r = e.target.closest('[data-ren]'); const t = e.target.closest('[data-tog]');
+    if(r){ await ensureSeeded(); renameBranch(r.getAttribute('data-ren')); }
+    else if(t){ toggleBranch(t.getAttribute('data-tog')); }
+  });
+
+  /* ---------- pay and company (admin) ---------- */
+  async function loadPay(){
+    let p = { retainer:12000, commissionPct:7, commissionBasis:'charged' };
+    try{ const s = await getDoc(doc(db,'settings','payroll')); if(s.exists()) p = Object.assign(p, s.data()); }catch(e){ console.error(e); }
+    $('payRetainer').value = p.retainer; $('payPct').value = p.commissionPct; $('payBasis').value = p.commissionBasis || 'charged';
+  }
+  $('savePay').addEventListener('click', async () => {
+    const retainer = parseFloat($('payRetainer').value);
+    const pct = parseFloat($('payPct').value);
+    if(!(retainer >= 0) || !(pct >= 0 && pct <= 100)){ toast('Enter a valid retainer and a percentage from 0 to 100', true); return; }
+    if(!window.confirm('Save retainer KES '+fKES(retainer)+' and '+pct+'% commission? This changes how all technician earnings are calculated.')) return;
+    setBusy($('savePay'), true, 'Saving...');
+    try{
+      await setDoc(doc(db,'settings','payroll'), { retainer, commissionPct:pct, commissionBasis:$('payBasis').value, updatedAt:serverTimestamp(), updatedBy:me.email }, { merge:true });
+      toast('Pay settings saved');
+    }catch(e){ console.error(e); toast('Could not save pay settings', true); }
+    setBusy($('savePay'), false, 'Save Pay Settings');
+  });
+  async function loadCompany(){
+    let c = { companyName:'Ecolife Pest Control' };
+    try{ const s = await getDoc(doc(db,'settings','company')); if(s.exists()) c = Object.assign(c, s.data()); }catch(e){ console.error(e); }
+    $('coName').value = c.companyName||''; $('coPhone').value = c.companyPhone||''; $('coEmail').value = c.companyEmail||'';
+    $('coAddress').value = c.companyAddress||''; $('coNote').value = c.payslipNote||'';
+  }
+  $('saveCo').addEventListener('click', async () => {
+    setBusy($('saveCo'), true, 'Saving...');
+    try{
+      await setDoc(doc(db,'settings','company'), { companyName:$('coName').value.trim(), companyPhone:$('coPhone').value.trim(), companyEmail:$('coEmail').value.trim(),
+        companyAddress:$('coAddress').value.trim(), payslipNote:$('coNote').value.trim(), updatedAt:serverTimestamp() }, { merge:true });
+      toast('Company details saved');
+    }catch(e){ console.error(e); toast('Could not save company details', true); }
+    setBusy($('saveCo'), false, 'Save Company Details');
+  });
+
+  /* ---------- export (admin) ---------- */
+  $('expBookings').addEventListener('click', async () => {
+    setBusy($('expBookings'), true, 'Preparing...');
+    try{
+      const s = await getDocs(collection(db,'bookings'));
+      const cols = ['bookingDate','serviceDate','serviceTime','branch','clientName','clientPhone','location','estate','serviceRequired','pestTargeted','propertySize','amountCharged','amountPaid','balance','technicianAssigned','status','notes','lossReason','lostDate'];
+      const rows = s.docs.map(d => cols.map(c => csvCell(d.data()[c])).join(','));
+      download('Ecolife_Bookings_'+new Date().toISOString().slice(0,10)+'.csv', cols.join(',')+'\n'+rows.join('\n')+'\n');
+    }catch(e){ console.error(e); toast('Export failed', true); }
+    setBusy($('expBookings'), false, 'Download Bookings');
+  });
+  $('expTechs').addEventListener('click', async () => {
+    setBusy($('expTechs'), true, 'Preparing...');
+    try{
+      const s = await getDocs(collection(db,'technicians'));
+      const cols = ['name','email','branch','phone'];
+      const rows = s.docs.map(d => cols.map(c => csvCell(d.data()[c])).join(','));
+      download('Ecolife_Technicians_'+new Date().toISOString().slice(0,10)+'.csv', cols.join(',')+'\n'+rows.join('\n')+'\n');
+    }catch(e){ console.error(e); toast('Export failed', true); }
+    setBusy($('expTechs'), false, 'Download Technicians');
+  });
+</script>
+
+</body>
+</html>
