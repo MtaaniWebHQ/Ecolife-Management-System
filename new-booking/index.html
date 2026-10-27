@@ -194,6 +194,10 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
       <svg class="nav-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Reports
     </a>
+    <a class="nav-item" href="../settings/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </a>
   </nav>
   <div class="sidebar-footer">
     <div class="user-row">
@@ -570,5 +574,110 @@ document.getElementById('serviceRequired').addEventListener('change', function()
     }
   });
 </script>
+
+<!-- SETTINGS INTEGRATION: profile photo, dynamic branches, preferences -->
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+  const app  = getApp();
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  const DEFAULTS = ['Nairobi','Nakuru','Eldoret','Mombasa','Kisumu','Kitale','Ecolife'];
+  const ls = {
+    get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+    set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+  };
+
+  function paintProfile(p, email){
+    if(!p) return;
+    const av = document.getElementById('userAvatar');
+    if(av){
+      if(p.photoURL){
+        av.style.backgroundImage = 'url("'+String(p.photoURL).replace(/"/g,'%22')+'")';
+        av.style.backgroundSize = 'cover';
+        av.style.backgroundPosition = 'center';
+        av.style.color = 'transparent';
+      }
+      const un = document.getElementById('userName');
+      if(un && p.displayName) un.textContent = p.displayName;
+    } else if(p.photoURL && document.getElementById('techNameBadge') && !document.getElementById('techPhoto')){
+      const img = document.createElement('img');
+      img.id = 'techPhoto';
+      img.src = p.photoURL;
+      img.alt = '';
+      img.style.cssText = 'width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid rgba(0,230,118,0.35);margin-right:4px';
+      const badge = document.getElementById('techNameBadge');
+      badge.parentNode.insertBefore(img, badge);
+    }
+  }
+
+  function applyBranches(list){
+    window.__branches = list;
+    document.querySelectorAll('select').forEach(sel => {
+      const opts = Array.from(sel.options);
+      if(!opts.some(o => DEFAULTS.includes((o.value||o.text).trim()))) return;
+      const current = sel.value;
+      opts.forEach(o => { if(DEFAULTS.includes((o.value||o.text).trim())) o.remove(); });
+      list.forEach(n => {
+        const o = document.createElement('option');
+        o.value = n; o.textContent = n;
+        sel.appendChild(o);
+      });
+      if(Array.from(sel.options).some(o => o.value === current)) sel.value = current;
+    });
+    window.dispatchEvent(new Event('branchesLoaded'));
+  }
+
+  async function extendTechStrip(list){
+    const strip = document.querySelector('.summary-strip');
+    if(!strip || !document.getElementById('countNairobi')) return;
+    const extra = list.filter(n => !DEFAULTS.includes(n));
+    if(!extra.length) return;
+    try{
+      const s = await getDocs(collection(db,'technicians'));
+      const techs = s.docs.map(d => d.data());
+      extra.forEach(n => {
+        const d = document.createElement('div');
+        d.className = 'strip-item';
+        const a = document.createElement('span'); a.className = 'strip-label'; a.textContent = n;
+        const b = document.createElement('span'); b.className = 'strip-value'; b.textContent = techs.filter(t => t.branch === n).length;
+        d.appendChild(a); d.appendChild(b);
+        strip.appendChild(d);
+      });
+    }catch(e){ console.error(e); }
+  }
+
+  async function loadBranches(){
+    try{
+      const s = await getDocs(collection(db,'branches'));
+      const rows = s.docs.map(d => d.data()).filter(b => b && b.name && b.active !== false);
+      if(!rows.length) return;
+      rows.sort((a,b) => (a.order||0)-(b.order||0) || String(a.name).localeCompare(String(b.name)));
+      const list = rows.map(b => b.name);
+      applyBranches(list);
+      extendTechStrip(list);
+    }catch(e){ console.error('Branches not loaded, using defaults', e); }
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if(!user) return;
+    const email = (user.email||'').toLowerCase();
+    const cached = ls.get('ecolife_profile_'+email);
+    if(cached){ try{ paintProfile(JSON.parse(cached), email); }catch(e){} }
+    try{
+      const s = await getDoc(doc(db,'profiles',email));
+      if(s.exists()){
+        const p = s.data();
+        ls.set('ecolife_profile_'+email, JSON.stringify({photoURL:p.photoURL||'', displayName:p.displayName||''}));
+        paintProfile(p, email);
+        setTimeout(() => paintProfile(p, email), 1500);
+      }
+    }catch(e){ console.error('Profile not loaded', e); }
+    loadBranches();
+  });
+</script>
+
 </body>
 </html>
