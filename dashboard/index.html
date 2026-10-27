@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ecolife System | New Booking</title>
+<title>Ecolife System | Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -11,12 +11,13 @@
 :root{
   --bg:#060D06;
   --bg-card:#0C160C;
+  --bg-card-hover:#101E10;
   --bg-input:#0F1A0F;
   --sidebar-bg:#080F08;
   --topbar-bg:#0A120A;
   --green:#00E676;
   --green-dim:#00C853;
-  --green-glow:rgba(0,230,118,0.08);
+  --green-glow:rgba(0,230,118,0.12);
   --green-border:rgba(0,230,118,0.18);
   --green-border-strong:rgba(0,230,118,0.35);
   --gold:#C9A84C;
@@ -32,9 +33,12 @@
 
 html,body{height:100%;font-family:'Inter',sans-serif;color:var(--text);background:var(--bg)}
 
+/* BG TEXTURE */
 body::before{
   content:'';position:fixed;inset:0;
-  background:radial-gradient(ellipse at 10% 10%,rgba(0,230,118,0.05) 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,rgba(0,200,83,0.06) 0%,transparent 50%);
+  background:
+    radial-gradient(ellipse at 10% 10%,rgba(0,230,118,0.05) 0%,transparent 50%),
+    radial-gradient(ellipse at 90% 90%,rgba(0,200,83,0.06) 0%,transparent 50%);
   pointer-events:none;z-index:0;
 }
 
@@ -45,107 +49,331 @@ body::after{
 }
 
 /* SIDEBAR */
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--sidebar-bg);border-right:1px solid var(--green-border);display:flex;flex-direction:column;z-index:100;transition:transform 0.3s}
-.sidebar-brand{padding:22px 20px 18px;border-bottom:1px solid var(--green-border);display:flex;align-items:center;gap:12px}
-.sidebar-brand img{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1.5px solid var(--green-border-strong);flex-shrink:0;box-shadow:0 0 12px rgba(0,230,118,0.15)}
-.brand-text{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:var(--green);letter-spacing:0.06em;line-height:1.2}
-.brand-text span{display:block;font-weight:500;font-size:10px;color:var(--gray);letter-spacing:0.1em;text-transform:uppercase}
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);
+  background:var(--sidebar-bg);
+  border-right:1px solid var(--green-border);
+  display:flex;flex-direction:column;z-index:100;transition:transform 0.3s;
+}
+
+.sidebar-brand{
+  padding:22px 20px 18px;
+  border-bottom:1px solid var(--green-border);
+  display:flex;align-items:center;gap:12px;
+}
+
+.sidebar-brand img{
+  width:38px;height:38px;border-radius:50%;object-fit:cover;
+  border:1.5px solid var(--green-border-strong);flex-shrink:0;
+  box-shadow:0 0 12px rgba(0,230,118,0.15);
+}
+
+.brand-text{
+  font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;
+  color:var(--green);letter-spacing:0.06em;line-height:1.2;
+}
+
+.brand-text span{
+  display:block;font-weight:500;font-size:10px;
+  color:var(--gray);letter-spacing:0.1em;text-transform:uppercase;
+}
+
 .sidebar-nav{flex:1;padding:14px 0;overflow-y:auto}
-.nav-section-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dim);padding:10px 20px 6px}
-.nav-item{display:flex;align-items:center;gap:12px;padding:10px 20px;cursor:pointer;color:var(--text-dim);font-size:15px;font-weight:500;transition:all 0.2s;border-left:2px solid transparent;text-decoration:none}
+
+.nav-section-label{
+  font-size:10px;font-weight:700;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--gray-dim);padding:10px 20px 6px;
+}
+
+.nav-item{
+  display:flex;align-items:center;gap:12px;padding:10px 20px;
+  cursor:pointer;color:var(--text-dim);font-size:15px;font-weight:500;
+  transition:all 0.2s;border-left:2px solid transparent;text-decoration:none;
+}
+
 .nav-item:hover{background:var(--green-glow);color:var(--white)}
-.nav-item.active{background:rgba(0,230,118,0.08);color:var(--green);border-left-color:var(--green)}
-.nav-icon{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.nav-item.active{
+  background:rgba(0,230,118,0.08);color:var(--green);
+  border-left-color:var(--green);
+}
+
+.nav-icon{
+  width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+}
+
 .sidebar-footer{padding:14px 20px;border-top:1px solid var(--green-border)}
+
 .user-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:rgba(0,230,118,0.1);border:1px solid var(--green-border-strong);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--green);flex-shrink:0}
+
+.user-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(0,230,118,0.1);border:1px solid var(--green-border-strong);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;
+  color:var(--green);flex-shrink:0;
+}
+
 .user-info{flex:1;min-width:0}
-.user-name{font-size:14px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.user-name{
+  font-size:14px;font-weight:600;color:var(--white);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
 .user-role{font-size:10px;color:var(--gray);letter-spacing:0.08em;text-transform:uppercase}
-.btn-signout{width:100%;padding:8px;background:rgba(255,82,82,0.06);border:1px solid rgba(255,82,82,0.15);border-radius:7px;color:rgba(255,130,130,0.7);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+
+.btn-signout{
+  width:100%;padding:8px;
+  background:rgba(255,82,82,0.06);
+  border:1px solid rgba(255,82,82,0.15);
+  border-radius:7px;color:rgba(255,130,130,0.7);
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:500;
+  cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+
 .btn-signout:hover{background:rgba(255,82,82,0.12);border-color:rgba(255,82,82,0.3);color:#FF8A80}
 
 /* TOPBAR */
-.topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:60px;background:var(--topbar-bg);border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:90}
+.topbar{
+  position:fixed;top:0;left:var(--sidebar-w);right:0;height:60px;
+  background:var(--topbar-bg);
+  border-bottom:1px solid var(--green-border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;z-index:90;
+}
+
 .topbar-left{display:flex;align-items:center;gap:14px}
-.menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;color:var(--gray)}
+
+.menu-toggle{
+  display:none;background:none;border:none;cursor:pointer;
+  padding:6px;border-radius:6px;color:var(--gray);
+}
+
 .menu-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
-.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--white);letter-spacing:0.04em}
 
-/* MAIN */
-.main{margin-left:var(--sidebar-w);padding-top:60px;min-height:100vh;position:relative;z-index:1}
-.main-inner{padding:24px;max-width:900px}
+.page-title{
+  font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;
+  color:var(--white);letter-spacing:0.04em;
+}
 
-/* FORM CARDS */
-.form-card{background:var(--bg-card);border-radius:12px;border:1px solid var(--green-border);overflow:hidden;margin-bottom:16px}
-.form-card-header{padding:16px 20px;border-bottom:1px solid rgba(0,230,118,0.1);display:flex;align-items:center;gap:12px}
-.form-card-header-icon{width:32px;height:32px;border-radius:8px;background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.form-card-header-icon svg{width:16px;height:16px;stroke:var(--green);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.form-card-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--white);letter-spacing:0.04em}
-.form-card-body{padding:20px}
+.topbar-right{display:flex;align-items:center;gap:12px}
 
-/* FORM ELEMENTS */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.form-grid.three{grid-template-columns:1fr 1fr 1fr}
-.span-2{grid-column:span 2}
-.span-3{grid-column:span 3}
-.form-group{display:flex;flex-direction:column;gap:6px}
-.form-label{font-size:10px;font-weight:700;color:var(--green-dim);letter-spacing:0.1em;text-transform:uppercase}
-.form-label .req{color:var(--error)}
-.field-hint{font-size:11px;color:var(--gray)}
-
-input[type=text],input[type=date],input[type=time],input[type=tel],input[type=number],select,textarea{
-  width:100%;padding:11px 14px;
-  border:1.5px solid var(--green-border);
-  border-radius:8px;
-  font-family:'Inter',sans-serif;font-size:15px;
-  color:var(--text);background:var(--bg-input);
-  outline:none;transition:border-color 0.2s,box-shadow 0.2s;
+.branch-filter{
+  padding:7px 14px;
+  border:1px solid var(--green-border);
+  border-radius:7px;font-family:'Inter',sans-serif;
+  font-size:15px;color:var(--text);
+  background:var(--bg-card);
+  cursor:pointer;outline:none;transition:border-color 0.2s;
   -webkit-appearance:none;appearance:none;
 }
 
-input::placeholder,textarea::placeholder{color:rgba(107,143,113,0.4)}
+.branch-filter:focus{border-color:var(--green-dim)}
 
-input:focus,select:focus,textarea:focus{
-  border-color:var(--green-dim);
-  box-shadow:0 0 0 3px rgba(0,200,83,0.1);
+.date-badge{
+  font-size:11.5px;color:var(--gray);font-weight:500;white-space:nowrap;
 }
 
-select{
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B8F71' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;
+/* MAIN */
+.main{margin-left:var(--sidebar-w);padding-top:60px;min-height:100vh;position:relative;z-index:1}
+.main-inner{padding:24px}
+
+/* STAT CARDS GRID - strict 2 column */
+.cards-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;margin-bottom:24px;
 }
 
-textarea{resize:vertical;min-height:80px;line-height:1.5}
-
-/* BALANCE */
-.balance-display{
-  padding:11px 14px;border-radius:8px;
-  background:var(--bg-input);border:1.5px solid var(--green-border);
-  font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;
-  color:var(--text);min-height:44px;display:flex;align-items:center;
+.stat-card{
+  background:var(--bg-card);
+  border-radius:12px;padding:22px 20px;
+  border:1px solid var(--green-border);
+  position:relative;overflow:hidden;
+  transition:box-shadow 0.2s,transform 0.2s,border-color 0.2s;
+  cursor:default;
 }
-.balance-display.positive{color:#FF8A80}
-.balance-display.clear{color:var(--green)}
 
-/* TOAST */
-.toast{display:none;position:fixed;top:76px;right:20px;z-index:999;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:340px;line-height:1.5}
-.toast.success{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.25);display:block}
-.toast.error{background:rgba(255,82,82,0.1);color:#FF8A80;border:1px solid rgba(255,82,82,0.25);display:block}
+.stat-card:hover{
+  box-shadow:0 0 24px rgba(0,230,118,0.1);
+  transform:translateY(-2px);
+  border-color:var(--green-border-strong);
+}
 
-/* FORM ACTIONS */
-.form-actions{display:flex;gap:12px;padding:16px 20px;border-top:1px solid rgba(0,230,118,0.1);background:rgba(0,230,118,0.02)}
-.btn-submit{padding:12px 28px;background:linear-gradient(135deg,#00C853 0%,#00A846 100%);color:#050D05;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;border:none;border-radius:8px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px;letter-spacing:0.04em;text-transform:uppercase}
-.btn-submit:hover:not(:disabled){background:linear-gradient(135deg,#00E676 0%,#00C853 100%);box-shadow:0 4px 20px rgba(0,200,83,0.3);transform:translateY(-1px)}
-.btn-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-.btn-cancel{padding:12px 20px;background:transparent;color:var(--text-dim);font-family:'Montserrat',sans-serif;font-weight:600;font-size:14px;border:1px solid var(--green-border);border-radius:8px;cursor:pointer;transition:all 0.2s;text-decoration:none;display:flex;align-items:center}
-.btn-cancel:hover{border-color:var(--green-border-strong);color:var(--white)}
-.spinner{display:none;width:15px;height:15px;border:2px solid rgba(5,13,5,0.3);border-top-color:#050D05;border-radius:50%;animation:spin 0.7s linear infinite}
-.btn-submit.loading .spinner{display:block}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* top glow bar */
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--green-dim),transparent);
+  opacity:0.6;
+}
 
+/* neon glow on hover */
+.stat-card::after{
+  content:'';position:absolute;
+  top:-30px;right:-30px;width:100px;height:100px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(0,230,118,0.06) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+.stat-icon{
+  width:34px;height:34px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;
+  background:rgba(0,230,118,0.08);
+  border:1px solid rgba(0,230,118,0.15);
+}
+
+.stat-icon svg{
+  width:17px;height:17px;fill:none;stroke:var(--green);
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+}
+
+.stat-label{
+  font-size:10px;color:var(--text-dim);font-weight:700;
+  margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em;
+}
+
+.stat-value{
+  font-family:'Montserrat',sans-serif;font-weight:800;
+  font-size:32px;color:var(--white);line-height:1;
+}
+
+.stat-sub{font-size:11.5px;color:var(--gray);margin-top:8px;line-height:1.4}
+
+/* QUICK ACTIONS */
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;
+}
+
+.section-title{
+  font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;
+  color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;
+}
+
+.btn-view-all{
+  font-size:12px;color:var(--green-dim);font-weight:600;
+  background:none;border:none;cursor:pointer;text-decoration:none;transition:color 0.2s;
+}
+
+.btn-view-all:hover{color:var(--green)}
+
+.actions-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:12px;margin-bottom:24px;
+}
+
+.action-card{
+  background:var(--bg-card);border-radius:10px;
+  border:1px solid var(--green-border);
+  padding:16px 14px;cursor:pointer;
+  display:flex;flex-direction:column;gap:10px;
+  transition:all 0.2s;text-decoration:none;
+}
+
+.action-card:hover{
+  border-color:var(--green-border-strong);
+  box-shadow:0 0 16px rgba(0,230,118,0.08);
+  transform:translateY(-1px);
+}
+
+.action-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:rgba(0,230,118,0.08);
+  border:1px solid rgba(0,230,118,0.15);
+  display:flex;align-items:center;justify-content:center;
+}
+
+.action-icon svg{
+  width:16px;height:16px;stroke:var(--green);
+  fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+}
+
+.action-label{
+  font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;color:var(--white);
+}
+
+.action-desc{font-size:11px;color:var(--gray);line-height:1.4}
+
+/* TABLE */
+.table-wrap{
+  background:var(--bg-card);border-radius:12px;
+  border:1px solid var(--green-border);overflow:hidden;margin-bottom:24px;
+}
+
+.table-scroll{overflow-x:auto}
+
+table{width:100%;border-collapse:collapse}
+
+thead th{
+  background:rgba(0,230,118,0.04);
+  font-size:10px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--text-dim);
+  padding:12px 16px;text-align:left;white-space:nowrap;
+  border-bottom:1px solid var(--green-border);
+}
+
+tbody tr{border-bottom:1px solid rgba(0,230,118,0.06);transition:background 0.15s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--green-glow)}
+
+tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middle}
+
+.td-client{font-weight:600;color:var(--white)}
+.td-sub{font-size:11px;color:var(--gray);margin-top:2px}
+
+.status-badge{
+  display:inline-block;padding:3px 10px;
+  border-radius:100px;font-size:10px;font-weight:700;letter-spacing:0.06em;
+}
+
+.status-badge.pending{background:rgba(251,191,36,0.1);color:#FBB724;border:1px solid rgba(251,191,36,0.2)}
+.status-badge.assigned{background:rgba(59,130,246,0.1);color:#60A5FA;border:1px solid rgba(59,130,246,0.2)}
+.status-badge.completed{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
+.status-badge.paid{background:rgba(0,200,83,0.15);color:#69F0AE;border:1px solid rgba(0,200,83,0.25)}
+.status-badge.awaiting-verification{background:rgba(96,165,250,0.1);color:#60A5FA;border:1px solid rgba(96,165,250,0.2)}
+.status-badge.resolved{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
+.status-badge.lost{background:rgba(255,82,82,0.1);color:#FF8A80;border:1px solid rgba(255,82,82,0.25)}
+.status-badge.pending-deduction{background:rgba(251,146,60,0.12);color:#FB923C;border:1px solid rgba(251,146,60,0.28)}
+.status-badge.deducted{background:rgba(192,132,252,0.12);color:#C084FC;border:1px solid rgba(192,132,252,0.28)}
+.status-badge.waived{background:rgba(148,163,184,0.12);color:#94A3B8;border:1px solid rgba(148,163,184,0.25)}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--green-border);gap:10px;flex-wrap:wrap}
+.pagination-info{font-size:12px;color:var(--text-dim)}
+.pagination-btns{display:flex;gap:6px;flex-wrap:wrap}
+.page-btn{padding:6px 12px;border:1px solid var(--green-border);border-radius:6px;font-size:12px;font-weight:600;color:var(--text-dim);background:transparent;cursor:pointer;transition:all 0.2s}
+.page-btn:hover:not(:disabled){border-color:var(--green-border-strong);color:var(--green)}
+.page-btn:disabled{opacity:0.35;cursor:not-allowed}
+.page-btn.active{background:var(--green-dim);color:#050D05;border-color:var(--green-dim)}
+
+.penalty-tag{
+  display:inline-block;padding:3px 10px;border-radius:100px;
+  font-size:11px;font-weight:700;letter-spacing:0.02em;
+  background:rgba(255,82,82,0.1);color:var(--error);border:1px solid rgba(255,82,82,0.22);
+}
+
+.btn-resolve{
+  padding:6px 12px;border-radius:7px;
+  background:rgba(0,230,118,0.1);border:1px solid var(--green-border-strong);
+  color:var(--green);font-family:'Inter',sans-serif;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.btn-resolve:hover{background:rgba(0,230,118,0.18)}
+.btn-resolve:disabled{opacity:0.4;cursor:not-allowed}
+
+.awaiting-tag{font-size:11px;color:var(--text-dim);white-space:nowrap}
+
+.td-amount{font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--white)}
+
+.state-row td{text-align:center;color:var(--gray);font-size:14px;padding:32px}
+
+/* SIDEBAR OVERLAY */
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99}
 
+/* MOBILE */
 @media(max-width:768px){
   .sidebar{transform:translateX(-100%)}
   .sidebar.open{transform:translateX(0)}
@@ -153,17 +381,16 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
   .topbar{left:0}
   .main{margin-left:0}
   .menu-toggle{display:flex}
+  .date-badge{display:none}
   .main-inner{padding:16px}
-  .form-grid{grid-template-columns:1fr}
-  .form-grid.three{grid-template-columns:1fr}
-  .span-2,.span-3{grid-column:span 1}
+  .cards-grid{grid-template-columns:1fr 1fr;gap:12px}
+  .stat-value{font-size:26px}
 }
 </style>
 </head>
 <body>
 
 <div class="sidebar-overlay" id="overlay"></div>
-<div class="toast" id="toast"></div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
@@ -173,7 +400,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
   </div>
   <nav class="sidebar-nav">
     <div class="nav-section-label">Main</div>
-    <a class="nav-item" href="../dashboard/">
+    <a class="nav-item active" href="../dashboard/">
       <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Dashboard
     </a>
@@ -181,7 +408,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
       <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Bookings
     </a>
-    <a class="nav-item active" href="../new-booking/">
+    <a class="nav-item" href="../new-booking/">
       <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
       New Booking
     </a>
@@ -220,7 +447,19 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
     <button class="menu-toggle" id="menuToggle">
       <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
-    <span class="page-title">New Booking</span>
+    <span class="page-title">Dashboard</span>
+  </div>
+  <div class="topbar-right">
+    <select class="branch-filter" id="branchFilter">
+      <option value="all">All Branches</option>
+      <option value="Nairobi">Nairobi</option>
+      <option value="Nakuru">Nakuru</option>
+      <option value="Eldoret">Eldoret</option>
+     <option>Mombasa</option>
+     <option>Kisumu</option>
+     <option>Kitale</option>
+     <option>Ecolife</option>    </select>
+    <span class="date-badge" id="dateBadge"></span>
   </div>
 </div>
 
@@ -228,195 +467,215 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
 <main class="main">
   <div class="main-inner">
 
-    <div class="form-card">
-      <div class="form-card-header">
-        <div class="form-card-header-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <span class="form-card-title">Booking Details</span>
-      </div>
-      <div class="form-card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Booking Date <span class="req">*</span></label>
-            <input type="date" id="bookingDate">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Service Date <span class="req">*</span></label>
-            <input type="date" id="serviceDate">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Time <span class="req">*</span></label>
-            <input type="time" id="serviceTime">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Branch <span class="req">*</span></label>
-            <select id="branch">
-              <option value="">Select branch</option>
-              <option>Nairobi</option>
-              <option>Nakuru</option>
-              <option>Eldoret</option>
-              <option>Mombasa</option>
-<option>Kisumu</option>
-<option>Kitale</option>
-              <option>Ecolife</option>
+    <!-- 2x3 STAT CARDS -->
+    <div class="cards-grid">
 
-            </select>
-          </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </div>
+        <div class="stat-label">Total Bookings</div>
+        <div class="stat-value" id="totalBookings">0</div>
+        <div class="stat-sub" id="totalBookingsSub">Across all branches</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="stat-label">Total Sales</div>
+        <div class="stat-value" id="totalSales">0</div>
+        <div class="stat-sub">KES charged</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="stat-label">Completed Jobs</div>
+        <div class="stat-value" id="completedJobs">0</div>
+        <div class="stat-sub" id="completedSub">Completion rate</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="stat-label">Pending Balance</div>
+        <div class="stat-value" id="pendingBalance">0</div>
+        <div class="stat-sub">KES outstanding</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="stat-label">Pending Jobs</div>
+        <div class="stat-value" id="pendingJobs">0</div>
+        <div class="stat-sub">Awaiting completion</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg>
+        </div>
+        <div class="stat-label">Unresolved Follow-Ups</div>
+        <div class="stat-value" id="followUps">0</div>
+        <div class="stat-sub">KSh 250 penalty each</div>
+      </div>
+
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="section-header">
+      <span class="section-title">Quick Actions</span>
+    </div>
+    <div class="actions-grid">
+      <a class="action-card" href="../new-booking/">
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        </div>
+        <div class="action-label">New Booking</div>
+        <div class="action-desc">Create and assign a job</div>
+      </a>
+      <a class="action-card" href="../bookings/">
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="action-label">View Bookings</div>
+        <div class="action-desc">All jobs across branches</div>
+      </a>
+      <a class="action-card" href="../technicians/">
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <div class="action-label">Technicians</div>
+        <div class="action-desc">Manage team members</div>
+      </a>
+      <a class="action-card" href="../reports/">
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <div class="action-label">Reports</div>
+        <div class="action-desc">Sales and performance</div>
+      </a>
+    </div>
+
+    <!-- RECENT BOOKINGS -->
+    <div class="section-header">
+      <span class="section-title">Recent Bookings</span>
+      <a class="btn-view-all" href="../bookings/">View all</a>
+    </div>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Service</th>
+              <th>Branch</th>
+              <th>Technician</th>
+              <th>Amount (KES)</th>
+              <th>Status</th>
+              <th>Service Date</th>
+            </tr>
+          </thead>
+          <tbody id="recentBookingsBody">
+            <tr class="state-row"><td colspan="7">Loading recent bookings...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <div class="form-card">
-      <div class="form-card-header">
-        <div class="form-card-header-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-        <span class="form-card-title">Client Information</span>
-      </div>
-      <div class="form-card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Client Name <span class="req">*</span></label>
-            <input type="text" id="clientName" placeholder="Full name">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Phone Number <span class="req">*</span></label>
-            <input type="tel" id="clientPhone" placeholder="07XX XXX XXX">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Location / Town <span class="req">*</span></label>
-            <input type="text" id="location" placeholder="e.g. Westlands, Nairobi">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Area / Estate</label>
-            <input type="text" id="estate" placeholder="e.g. Lavington, Block 4">
-          </div>
+    <!-- FOLLOW-UP PENALTY OVERVIEW -->
+    <div class="section-header">
+      <span class="section-title">Follow-Up Penalty Overview</span>
+      <a class="btn-view-all" href="../reports/">Full report</a>
+    </div>
+    <div class="cards-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
+        <div class="stat-label">Pending Follow-Ups</div>
+        <div class="stat-value" id="fuPending">0</div>
+        <div class="stat-sub">Not yet actioned by technician</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="stat-label">Awaiting Verification</div>
+        <div class="stat-value" id="fuAwaiting">0</div>
+        <div class="stat-sub">Marked complete by technician</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.5 16z"/></svg>
+        </div>
+        <div class="stat-label">Total Unresolved</div>
+        <div class="stat-value" id="fuUnresolved">0</div>
+        <div class="stat-sub">Pending + awaiting verification</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="stat-label">Outstanding Penalties</div>
+        <div class="stat-value" id="fuPenaltyTotal">0</div>
+        <div class="stat-sub">KES across all technicians</div>
       </div>
     </div>
 
-    <div class="form-card">
-      <div class="form-card-header">
-        <div class="form-card-header-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
-        <span class="form-card-title">Service Details</span>
-      </div>
-      <div class="form-card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Service Required <span class="req">*</span></label>
-            <select id="serviceRequired">
-              <option value="">Select service</option>
-<option>Follow Up Visit</option>
-              <option>Cockroach Control</option>
-              <option>Bedbug Treatment</option>
-              <option>Rodent Control</option>
-              <option>Termite Control</option>
-              <option>Mosquito Control</option>
-              <option>Flea Treatment</option>
-              <option>Ant Control</option>
-              <option>General Fumigation</option>
-              <option>Snake Control</option>
-              <option>Bat Removal</option>
-              <option>Bird Control</option>
-              <option>Bee Removal</option>
-              <option>Wasp Control</option>
-              <option>Mite Treatment</option>
-              <option>Tick Treatment</option>
-              <option>Stored Product Pest Control</option>
-              <option>Sanitization / Disinfection</option>
-              <option>Ultrafog Fumigation Service</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Pest Targeted <span class="req">*</span></label>
-            <select id="pestTargeted">
-              <option value="">Select pest</option>
-              <option>Cockroaches</option>
-              <option>Bedbugs</option>
-              <option>Rats</option>
-              <option>Mice</option>
-              <option>Termites</option>
-              <option>Mosquitoes</option>
-              <option>Fleas</option>
-              <option>Ants</option>
-              <option>Snakes</option>
-              <option>Bats</option>
-              <option>Birds</option>
-              <option>Bees</option>
-              <option>Wasps</option>
-              <option>Ticks</option>
-              <option>Mites</option>
-              <option>Weevils and Stored Grain Pests</option>
-            </select>
-          </div>
-          <div class="form-group span-2">
-            <label class="form-label">Size / Number of Bedrooms</label>
-            <input type="text" id="propertySize" placeholder="e.g. 3 bedrooms, studio, 200 sqm warehouse">
-          </div>
-        </div>
+    <!-- TECHNICIAN PENALTY RANKING -->
+    <div class="section-header">
+      <span class="section-title">Technicians Ranked by Unresolved Follow-Ups</span>
+    </div>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Technician</th>
+              <th>Unresolved Follow-Ups</th>
+              <th>Penalty (KES)</th>
+            </tr>
+          </thead>
+          <tbody id="technicianRankingBody">
+            <tr class="state-row"><td colspan="3">Loading...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <div class="form-card">
-      <div class="form-card-header">
-        <div class="form-card-header-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-        <span class="form-card-title">Quote and Payment</span>
-      </div>
-      <div class="form-card-body">
-        <div class="form-grid three">
-          <div class="form-group">
-            <label class="form-label">Amount Charged (KES) <span class="req">*</span></label>
-            <input type="number" id="amountCharged" placeholder="0" min="0">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Amount Paid (KES)</label>
-            <input type="number" id="amountPaid" placeholder="0" min="0">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Balance (KES)</label>
-            <div class="balance-display" id="balanceDisplay">0</div>
-            <span class="field-hint">Calculated automatically</span>
-          </div>
-        </div>
-      </div>
+    <!-- FOLLOW UPS TABLE -->
+    <div class="section-header">
+      <span class="section-title">Unresolved Follow Ups</span>
+      <a class="btn-view-all" href="../reports/">View report</a>
     </div>
-
-    <div class="form-card">
-      <div class="form-card-header">
-        <div class="form-card-header-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
-        <span class="form-card-title">Technician Assignment</span>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Client Name</th>
+              <th>Phone</th>
+              <th>Location</th>
+              <th>Target Pest</th>
+              <th>Technician</th>
+              <th>Status</th>
+              <th>Penalty (KES)</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="followUpsBody">
+            <tr class="state-row"><td colspan="8">Loading follow ups...</td></tr>
+          </tbody>
+        </table>
       </div>
-      <div class="form-card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Technician Assigned</label>
-            <select id="technicianAssigned">
-              <option value="">Select technician</option>
-            </select>
-            <span class="field-hint">Add technicians under the Technicians page first.</span>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Job Status <span class="req">*</span></label>
-            <select id="jobStatus">
-              <option value="Pending">Pending</option>
-              <option value="Assigned">Assigned</option>
-              <option value="Completed">Completed</option>
-              <option value="Paid">Paid</option><option>Follow Up Visit</option>
-              <option value="Resolved">Resolved</option>
-            </select>
-          </div>
-          <div class="form-group span-2">
-            <label class="form-label">Notes / Treatment Remarks</label>
-            <textarea id="notes" placeholder="For Follow Up Visit: describe the complaint raised and what needs to be addressed on the return visit..."></textarea>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="form-card">
-      <div class="form-actions">
-        <button class="btn-submit" id="submitBtn">
-          <div class="spinner"></div>
-          <span class="btn-text">Save Booking</span>
-        </button>
-        <a class="btn-cancel" href="../bookings/">Cancel</a>
+      <div class="pagination" id="fuPagination">
+        <span class="pagination-info" id="fuPaginationInfo"></span>
+        <div class="pagination-btns" id="fuPaginationBtns"></div>
       </div>
     </div>
 
@@ -424,9 +683,14 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
 </main>
 
 <script type="module">
-  import { initializeApp }      from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { initializeApp }       from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+  const FOLLOWUP_PENALTY = 250;
+  const FU_PER_PAGE = 15;
+  let fuPage = 1;
+  let fuRows = [];
 
   const firebaseConfig = {
     apiKey: "AIzaSyBxi76PxDat-G5bjcUQ2MmPe0mGcTE-izs",
@@ -442,21 +706,35 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
   const auth = getAuth(app);
   const db   = getFirestore(app);
 
+  document.getElementById('dateBadge').textContent = new Date().toLocaleDateString('en-KE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
   document.getElementById('menuToggle').addEventListener('click', () => {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('overlay').classList.toggle('show');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
   });
-  document.getElementById('overlay').addEventListener('click', () => {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('overlay').classList.remove('show');
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
   });
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = '../'; return; }
-    document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
-    document.getElementById('userName').textContent   = user.email.split('@')[0];
-    await loadTechnicians();
-    setTodayDate();
+
+    // role check - only admin can access dashboard
+    if(user.email !== 'ecolifepestguard@gmail.com'){
+      const snap = await getDocs(collection(db,'technicians'));
+      let isTech = false;
+      snap.forEach(doc => { if(doc.data().email === user.email) isTech = true; });
+      if(isTech){ window.location.href = '../technician-view/'; return; }
+      window.location.href = '../'; return;
+    }
+
+    const email = user.email || '';
+    document.getElementById('userAvatar').textContent = email.charAt(0).toUpperCase();
+    document.getElementById('userName').textContent   = email.split('@')[0];
+    await loadDashboard('all');
   });
 
   document.getElementById('signOutBtn').addEventListener('click', async () => {
@@ -464,115 +742,194 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
     window.location.href = '../';
   });
 
-  function setTodayDate(){
-    document.getElementById('bookingDate').value = new Date().toISOString().split('T')[0];
-  }
-
-  async function loadTechnicians(){
-    try{
-      const snap = await getDocs(collection(db,'technicians'));
-      const sel  = document.getElementById('technicianAssigned');
-      snap.forEach(doc => {
-        const t   = doc.data();
-        const opt = document.createElement('option');
-        opt.value       = t.name;
-        opt.textContent = t.name + (t.branch ? ' (' + t.branch + ')' : '');
-        sel.appendChild(opt);
-      });
-    } catch(e){ console.error(e); }
-  }
-
-  function calcBalance(){
-    const charged = parseFloat(document.getElementById('amountCharged').value)||0;
-    const paid    = parseFloat(document.getElementById('amountPaid').value)||0;
-    const balance = charged - paid;
-    const el      = document.getElementById('balanceDisplay');
-    el.textContent = balance.toLocaleString('en-KE',{minimumFractionDigits:0});
-    el.className   = 'balance-display' + (balance > 0 ? ' positive' : balance === 0 && charged > 0 ? ' clear' : '');
-  }
-
-  document.getElementById('amountCharged').addEventListener('input',calcBalance);
-document.getElementById('amountPaid').addEventListener('input',calcBalance);
-
-document.getElementById('serviceRequired').addEventListener('change', function(){
-  const paymentCard = document.querySelector('.form-card:nth-of-type(4)');
-  if(this.value === 'Follow Up Visit'){
-    paymentCard.style.display = 'none';
-    document.getElementById('amountCharged').value = '0';
-    document.getElementById('amountPaid').value = '0';
-    document.getElementById('balanceDisplay').textContent = '0';
-    document.getElementById('jobStatus').value = 'Pending';
-  } else {
-    paymentCard.style.display = 'block';
-  }
-});
-  document.getElementById('amountPaid').addEventListener('input',calcBalance);
-
-  function showToast(msg,type){
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className   = 'toast ' + type;
-    setTimeout(() => { t.className = 'toast'; },4000);
-  }
-
-  const required = [
-    {id:'bookingDate',label:'Booking Date'},{id:'serviceDate',label:'Service Date'},
-    {id:'serviceTime',label:'Time'},{id:'branch',label:'Branch'},
-    {id:'clientName',label:'Client Name'},{id:'clientPhone',label:'Phone Number'},
-    {id:'location',label:'Location'},{id:'serviceRequired',label:'Service Required'},
-    {id:'pestTargeted',label:'Pest Targeted'},{id:'amountCharged',label:'Amount Charged'},
-    {id:'jobStatus',label:'Job Status'},
-  ];
-
-  document.getElementById('submitBtn').addEventListener('click', async () => {
-    for(const f of required){
-      const el = document.getElementById(f.id);
-      if(!el.value.trim()){ showToast(f.label + ' is required.','error'); el.focus(); return; }
-    }
-
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.classList.add('loading');
-    document.querySelector('.btn-text').textContent = 'Saving...';
-
-    const charged = parseFloat(document.getElementById('amountCharged').value)||0;
-    const paid    = parseFloat(document.getElementById('amountPaid').value)||0;
-    const tech    = document.getElementById('technicianAssigned').value;
-
-    const booking = {
-      bookingDate:        document.getElementById('bookingDate').value,
-      serviceDate:        document.getElementById('serviceDate').value,
-      serviceTime:        document.getElementById('serviceTime').value,
-      branch:             document.getElementById('branch').value,
-      clientName:         document.getElementById('clientName').value.trim(),
-      clientPhone:        document.getElementById('clientPhone').value.trim(),
-      location:           document.getElementById('location').value.trim(),
-      estate:             document.getElementById('estate').value.trim(),
-      serviceRequired:    document.getElementById('serviceRequired').value,
-      pestTargeted:       document.getElementById('pestTargeted').value,
-      propertySize:       document.getElementById('propertySize').value.trim(),
-      amountCharged:      charged,
-      amountPaid:         paid,
-      balance:            charged - paid,
-      technicianAssigned: tech,
-      status:             document.getElementById('jobStatus').value,
-      notes:              document.getElementById('notes').value.trim(),
-      createdAt:          serverTimestamp(),
-    };
-
-    try{
-      await addDoc(collection(db,'bookings'),booking);
-
-      showToast('Booking saved successfully.','success');
-      setTimeout(() => { window.location.href = '../bookings/'; },1500);
-    } catch(err){
-      showToast('Failed to save booking. Please try again.','error');
-      console.error(err);
-      btn.disabled = false;
-      btn.classList.remove('loading');
-      document.querySelector('.btn-text').textContent = 'Save Booking';
-    }
+  document.getElementById('branchFilter').addEventListener('change', async (e) => {
+    await loadDashboard(e.target.value);
   });
+
+  async function loadDashboard(branch, keepPage = false) {
+    try {
+      const snap     = await getDocs(collection(db, 'bookings'));
+      let bookings   = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (branch !== 'all') bookings = bookings.filter(b => b.branch === branch);
+
+      const total      = bookings.length;
+      const completed  = bookings.filter(b => b.status === 'Completed' || b.status === 'Paid').length;
+      const pending    = bookings.filter(b => b.status === 'Pending' || b.status === 'Assigned').length;
+      const totalSales = bookings.reduce((s,b) => s + (parseFloat(b.amountCharged)||0), 0);
+      const totalPaid  = bookings.reduce((s,b) => s + (parseFloat(b.amountPaid)||0),    0);
+      const pendingBal = totalSales - totalPaid;
+      const followUpsData    = bookings.filter(b => b.serviceRequired === 'Follow Up Visit');
+      const fuPendingList    = followUpsData.filter(b => b.status !== 'Completed (Awaiting Verification)' && b.status !== 'Resolved');
+      const fuAwaitingList   = followUpsData.filter(b => b.status === 'Completed (Awaiting Verification)');
+      const fuUnresolvedList = followUpsData.filter(b => b.status !== 'Resolved');
+      const fuPenaltyTotal   = fuUnresolvedList.length * FOLLOWUP_PENALTY;
+
+      document.getElementById('totalBookings').textContent    = total;
+      document.getElementById('totalBookingsSub').textContent = branch === 'all' ? 'Across all branches' : branch + ' branch';
+      document.getElementById('totalSales').textContent       = fKES(totalSales);
+      document.getElementById('completedJobs').textContent    = completed;
+      document.getElementById('completedSub').textContent     = total > 0 ? Math.round((completed/total)*100) + '% completion rate' : 'No jobs yet';
+      document.getElementById('pendingBalance').textContent   = fKES(pendingBal);
+      document.getElementById('pendingJobs').textContent      = pending;
+      document.getElementById('followUps').textContent        = fuUnresolvedList.length;
+
+      document.getElementById('fuPending').textContent      = fuPendingList.length;
+      document.getElementById('fuAwaiting').textContent     = fuAwaitingList.length;
+      document.getElementById('fuUnresolved').textContent   = fuUnresolvedList.length;
+      document.getElementById('fuPenaltyTotal').textContent = fKES(fuPenaltyTotal);
+
+      // browser notification for admin on new bookings
+    const lastSeenAdmin = parseInt(localStorage.getItem('lastSeen_admin')||'0');
+    const newBookings   = bookings.filter(b => (b.createdAt?.seconds||0)*1000 > lastSeenAdmin);
+    localStorage.setItem('lastSeen_admin', Date.now().toString());
+    if(newBookings.length > 0 && lastSeenAdmin > 0 && localStorage.getItem('ecolife_notify') !== 'off'){
+      if(Notification.permission === 'granted'){
+        new Notification('Ecolife System', {
+          body: newBookings.length+' new booking'+(newBookings.length>1?'s':'')+' have been added.'
+        });
+      } else if(Notification.permission !== 'denied'){
+        Notification.requestPermission();
+      }
+    }
+
+    const recent = [...bookings].sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0)).slice(0,8);
+      renderRecent(recent);
+      if (!keepPage) fuPage = 1;
+      renderFollowUps(fuUnresolvedList);
+      renderTechnicianRanking(fuUnresolvedList);
+
+    } catch(err) {
+      console.error('Dashboard load error:', err);
+    }
+  }
+
+  function renderTechnicianRanking(unresolvedFollowUps) {
+    const tbody = document.getElementById('technicianRankingBody');
+    const byTech = {};
+    unresolvedFollowUps.forEach(b => {
+      const name = b.technicianAssigned || 'Unassigned';
+      byTech[name] = (byTech[name] || 0) + 1;
+    });
+    const ranked = Object.entries(byTech).sort((a,b) => b[1] - a[1]);
+    if (ranked.length === 0) {
+      tbody.innerHTML = '<tr class="state-row"><td colspan="3">No unresolved follow ups. All clear.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = ranked.map(([name,count]) => `
+      <tr>
+        <td class="td-client">${esc(name)}</td>
+        <td>${count}</td>
+        <td class="td-amount">${fKES(count * FOLLOWUP_PENALTY)}</td>
+      </tr>`).join('');
+  }
+
+  window.resolveFollowUp = async function(id) {
+    if (!confirm('Mark this follow up as Resolved? The KSh 250 penalty will be removed.')) return;
+    try {
+      await updateDoc(doc(db, 'bookings', id), { status: 'Resolved', resolvedAt: new Date() });
+      await loadDashboard(document.getElementById('branchFilter').value, true);
+    } catch(err) {
+      console.error('Resolve error:', err);
+      alert('Could not resolve this follow up. Please try again.');
+    }
+  };
+
+  function renderRecent(bookings) {
+    const tbody = document.getElementById('recentBookingsBody');
+    if (bookings.length === 0) {
+      tbody.innerHTML = '<tr class="state-row"><td colspan="7">No bookings yet. Create your first booking to get started.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = bookings.map(b => `
+      <tr>
+        <td>
+          <div class="td-client">${esc(b.clientName||'--')}</div>
+          <div class="td-sub">${esc(b.clientPhone||'')} </div>
+        </td>
+        <td>${esc(b.serviceRequired||'--')}</td>
+        <td>${esc(b.branch||'--')}</td>
+        <td>${esc(b.technicianAssigned||'Unassigned')}</td>
+        <td class="td-amount">${fKES(b.amountCharged)}</td>
+        <td><span class="status-badge ${statusClass(b.status)}">${esc(b.status||'Pending')}</span></td>
+        <td>${fDate(b.serviceDate)}</td>
+      </tr>`).join('');
+  }
+
+  function buildPager(btns,page,pages,go){
+    btns.innerHTML='';
+    if(pages<=1) return;
+    const mk=(label,disabled,cls,fn)=>{
+      const b=document.createElement('button');
+      b.className='page-btn'+(cls?' '+cls:'');
+      b.textContent=label;b.disabled=disabled;
+      b.addEventListener('click',fn);
+      btns.appendChild(b);
+    };
+    mk('Prev',page===1,'',()=>go(page-1));
+    for(let i=1;i<=pages;i++){
+      if(pages>7&&i>2&&i<pages-1&&Math.abs(i-page)>1) continue;
+      mk(String(i),false,i===page?'active':'',()=>go(i));
+    }
+    mk('Next',page===pages,'',()=>go(page+1));
+  }
+
+  function renderFollowUps(bookings) {
+    fuRows = bookings;
+    drawFollowUps();
+  }
+
+  function drawFollowUps() {
+    const tbody = document.getElementById('followUpsBody');
+    const info  = document.getElementById('fuPaginationInfo');
+    const btns  = document.getElementById('fuPaginationBtns');
+    const total = fuRows.length;
+    const pages = Math.max(1, Math.ceil(total / FU_PER_PAGE));
+    if (fuPage > pages) fuPage = pages;
+
+    if (total === 0) {
+      tbody.innerHTML = '<tr class="state-row"><td colspan="8">No unresolved follow ups. All clear.</td></tr>';
+      info.textContent = '';
+      btns.innerHTML = '';
+      return;
+    }
+
+    const start = (fuPage - 1) * FU_PER_PAGE;
+    const end   = Math.min(start + FU_PER_PAGE, total);
+    tbody.innerHTML = fuRows.slice(start, end).map(b => `
+      <tr>
+        <td class="td-client">${esc(b.clientName||'--')}</td>
+        <td>${esc(b.clientPhone||'--')}</td>
+        <td>${esc(b.location||'--')}${b.estate?', '+esc(b.estate):''}</td>
+        <td>${esc(b.pestTargeted||'--')}</td>
+        <td>${esc(b.technicianAssigned||'Unassigned')}</td>
+        <td><span class="status-badge ${statusClass(b.status)}">${esc(b.status||'Pending')}</span></td>
+        <td><span class="penalty-tag">KES ${FOLLOWUP_PENALTY}</span></td>
+        <td>${b.status === 'Completed (Awaiting Verification)'
+              ? `<button class="btn-resolve" onclick="resolveFollowUp('${b.id}')">Resolve</button>`
+              : `<span class="awaiting-tag">Awaiting technician</span>`}</td>
+      </tr>`).join('');
+    info.textContent = `Showing ${start + 1} to ${end} of ${total}`;
+    buildPager(btns, fuPage, pages, p => { fuPage = p; drawFollowUps(); });
+  }
+
+  function statusClass(status) {
+    return (status || 'pending').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  }
+
+  function fKES(val) {
+    const n = parseFloat(val) || 0;
+    return n.toLocaleString('en-KE',{minimumFractionDigits:0,maximumFractionDigits:0});
+  }
+
+  function fDate(val) {
+    if (!val) return '--';
+    const d = new Date(val);
+    return isNaN(d) ? val : d.toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'});
+  }
+
+  function esc(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
 </script>
 
 <!-- SETTINGS INTEGRATION: profile photo, dynamic branches, preferences -->
