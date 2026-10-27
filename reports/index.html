@@ -195,6 +195,10 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
       <svg class="nav-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Technicians
     </a>
+    <a class="nav-item" href="../earnings/">
+      <svg class="nav-icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Earnings
+    </a>
     <a class="nav-item active" href="../reports/">
       <svg class="nav-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Reports
@@ -334,28 +338,6 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
       </div>
     </div>
 
-    <div class="report-section" id="payrollSection">
-      <div class="report-section-header">
-        <span class="report-section-title">Technician Payroll</span>
-        <span class="report-count" id="payCount"></span>
-      </div>
-      <div style="padding:14px 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
-        <div class="filter-group">
-          <label>Pay Month</label>
-          <input type="month" class="filter-date" id="payMonth">
-        </div>
-        <button class="btn-apply" id="payRunBtn" type="button">Calculate</button>
-        <button class="btn-apply" id="payCsvBtn" type="button" style="background:rgba(0,230,118,0.08);color:#00E676;border:1px solid rgba(0,230,118,0.35)">Download CSV</button>
-        <span id="payRates" style="font-size:12px;color:var(--text-dim)"></span>
-      </div>
-      <div class="table-scroll">
-        <table style="min-width:1000px">
-          <thead><tr><th>Technician</th><th>Branch</th><th>Jobs</th><th>Sales (KES)</th><th>Commission</th><th>Retainer</th><th>Gross</th><th>Follow Up Ded.</th><th>Job Loss Ded.</th><th>Net Pay (KES)</th><th class="pen-col-action">Payslip</th></tr></thead>
-          <tbody id="payBody"><tr class="empty-row"><td colspan="11">Loading...</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-
     <div class="report-section" id="jobLossSection">
       <div class="report-section-header">
         <span class="report-section-title">Job Loss Penalty Report</span>
@@ -466,149 +448,6 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
 
   let allBookings = [];
 
-  /* ===== PAYROLL CORE (retainer + commission - penalties) ===== */
-  const PAY_DEFAULT = { retainer:12000, commissionPct:7, commissionBasis:'charged', followUpPenalty:250,
-                        companyName:'Ecolife Pest Control', companyPhone:'', companyEmail:'', companyAddress:'', payslipNote:'' };
-  let PAY = Object.assign({}, PAY_DEFAULT);
-
-  async function loadPayRates(){
-    try{
-      const a = await getDoc(doc(db,'settings','payroll'));
-      if(a.exists()) PAY = Object.assign({}, PAY_DEFAULT, a.data());
-    }catch(e){ console.error('Payroll rates not loaded, using defaults', e); }
-    try{
-      const c = await getDoc(doc(db,'settings','company'));
-      if(c.exists()) PAY = Object.assign({}, PAY, c.data());
-    }catch(e){ console.error('Company details not loaded', e); }
-  }
-
-  function pNum(v){ return parseFloat(v)||0; }
-  function pKES(v){ return Math.round(pNum(v)).toLocaleString('en-KE'); }
-  function pEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-  function pMonthLabel(ym){ const d = new Date(ym+'-01T00:00:00'); return isNaN(d) ? ym : d.toLocaleDateString('en-KE',{month:'long',year:'numeric'}); }
-  function pThisMonth(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
-
-  function computePay(jobs, pens, ym){
-    const LOCK = ['Lost','Pending Deduction','Deducted','Waived'];
-    const inMonth = d => typeof d === 'string' && d.slice(0,7) === ym;
-    const mj = jobs.filter(b => inMonth(b.serviceDate));
-    const earning = mj.filter(b => b.serviceRequired !== 'Follow Up Visit' && !LOCK.includes(b.status));
-    const sales = earning.reduce((t,b) => t + (PAY.commissionBasis === 'collected' ? pNum(b.amountPaid) : pNum(b.amountCharged)), 0);
-    const commission = Math.round(sales * pNum(PAY.commissionPct) / 100);
-    const retainer = pNum(PAY.retainer);
-    const gross = retainer + commission;
-    const fu = mj.filter(b => b.serviceRequired === 'Follow Up Visit' && b.status !== 'Resolved').length;
-    const fuAmt = fu * pNum(PAY.followUpPenalty);
-    const jl = pens.filter(p => inMonth(p.lostDate) && (p.status === 'Pending Deduction' || p.status === 'Deducted'));
-    const jlAmt = jl.reduce((t,p) => t + pNum(p.penaltyAmount), 0);
-    return { ym, jobs: mj.length, paidJobs: earning.length, sales, commission, retainer, gross,
-             fu, fuAmt, jlCount: jl.length, jlAmt, deductions: fuAmt + jlAmt, net: gross - fuAmt - jlAmt };
-  }
-
-  function payslipHTML(name, branch, s){
-    const row = (a,b,cls) => '<tr class="'+(cls||'')+'"><td>'+a+'</td><td class="r">'+b+'</td></tr>';
-    return '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Payslip '+pEsc(name)+' '+pEsc(s.ym)+'</title>'
-    + '<style>body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:0;padding:24px;background:#fff}.box{max-width:680px;margin:0 auto;border:1px solid #bbb;padding:28px}'
-    + 'h1{font-size:20px;margin:0 0 4px}h2{font-size:14px;margin:22px 0 8px;text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid #111;padding-bottom:4px}'
-    + '.sub{font-size:12px;color:#555;line-height:1.5}.meta{display:flex;justify-content:space-between;gap:16px;margin-top:18px;font-size:13px;flex-wrap:wrap}'
-    + 'table{width:100%;border-collapse:collapse;font-size:13px}td{padding:7px 4px;border-bottom:1px solid #ddd}td.r{text-align:right;white-space:nowrap}'
-    + 'tr.tot td{font-weight:700;border-top:2px solid #111;border-bottom:none}tr.net td{font-weight:800;font-size:16px;border-top:2px solid #111;background:#f2f2f2}'
-    + '.note{font-size:11px;color:#555;margin-top:22px;line-height:1.5}.sig{display:flex;justify-content:space-between;margin-top:40px;font-size:12px}.sig div{width:44%;border-top:1px solid #111;padding-top:4px}'
-    + '@media print{body{padding:0}.box{border:none}}</style></head><body><div class="box">'
-    + '<h1>'+pEsc(PAY.companyName||'Ecolife Pest Control')+'</h1>'
-    + '<div class="sub">'+[PAY.companyAddress,PAY.companyPhone,PAY.companyEmail].filter(Boolean).map(pEsc).join(' | ')+'</div>'
-    + '<h2>Payslip for '+pEsc(pMonthLabel(s.ym))+'</h2>'
-    + '<div class="meta"><div><strong>Technician:</strong> '+pEsc(name)+'<br><strong>Branch:</strong> '+pEsc(branch||'--')+'</div>'
-    + '<div><strong>Generated:</strong> '+pEsc(new Date().toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'}))+'<br><strong>Jobs in month:</strong> '+s.jobs+'</div></div>'
-    + '<h2>Earnings</h2><table>'
-    + row('Monthly retainer','KES '+pKES(s.retainer))
-    + row('Sales basis ('+(PAY.commissionBasis==='collected'?'amount collected':'amount charged')+', '+s.paidJobs+' jobs)','KES '+pKES(s.sales))
-    + row('Commission at '+pNum(PAY.commissionPct)+'%','KES '+pKES(s.commission))
-    + row('Gross pay','KES '+pKES(s.gross),'tot')
-    + '</table><h2>Deductions</h2><table>'
-    + row('Unresolved follow ups ('+s.fu+' x KES '+pKES(PAY.followUpPenalty)+')','KES '+pKES(s.fuAmt))
-    + row('Job loss penalties ('+s.jlCount+')','KES '+pKES(s.jlAmt))
-    + row('Total deductions','KES '+pKES(s.deductions),'tot')
-    + '</table><table style="margin-top:14px">'+row('NET PAY','KES '+pKES(s.net),'net')+'</table>'
-    + (PAY.payslipNote ? '<div class="note">'+pEsc(PAY.payslipNote)+'</div>' : '')
-    + '<div class="note">This payslip is generated from the Ecolife Operations System. Figures cover jobs with a service date in the month shown.</div>'
-    + '<div class="sig"><div>Prepared by</div><div>Received by</div></div>'
-    + '</div></body></html>';
-  }
-
-  function openPayslip(name, branch, s){
-    const html = payslipHTML(name, branch, s);
-    const w = window.open('', '_blank');
-    if(w){
-      w.document.open(); w.document.write(html); w.document.close();
-      setTimeout(() => { try{ w.focus(); w.print(); }catch(e){} }, 500);
-    } else {
-      downloadText('Payslip_'+name.replace(/\s+/g,'_')+'_'+s.ym+'.html', html, 'text/html');
-    }
-  }
-
-  function downloadText(filename, text, type){
-    const blob = new Blob([text], { type: (type||'text/plain')+';charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    document.body.appendChild(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-  }
-
-  function csvCell(v){ const s = String(v==null?'':v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
-  const PAY_CSV_HEAD = ['Month','Technician','Branch','Jobs','Sales','Commission','Retainer','Gross','Unresolved Follow Ups','Follow Up Deduction','Job Loss Penalties','Job Loss Deduction','Total Deductions','Net Pay'];
-  function payCsvRow(name, branch, s){
-    return [s.ym,name,branch||'',s.jobs,s.sales,s.commission,s.retainer,s.gross,s.fu,s.fuAmt,s.jlCount,s.jlAmt,s.deductions,s.net].map(csvCell).join(',');
-  }
-
-  /* ===== TECHNICIAN PAYROLL ===== */
-  let payRows = [];
-  function payTechList(){
-    const branch = document.getElementById('filterBranch').value;
-    const tech   = document.getElementById('filterTech').value;
-    return allTechs.filter(t => (branch==='all'||t.branch===branch) && (tech==='all'||t.name===tech))
-                   .sort((a,b) => String(a.name).localeCompare(String(b.name)));
-  }
-  function renderPayroll(){
-    const ym = document.getElementById('payMonth').value || pThisMonth();
-    const techs = payTechList();
-    payRows = techs.map(t => ({ t, s: computePay(allBookings.filter(b => b.technicianAssigned === t.name), allPenalties.filter(p => p.technicianName === t.name), ym) }));
-    document.getElementById('payRates').textContent = 'Retainer KES '+pKES(PAY.retainer)+' + '+pNum(PAY.commissionPct)+'% commission on '+(PAY.commissionBasis==='collected'?'collected':'charged')+' sales';
-    document.getElementById('payCount').textContent = payRows.length+' technician'+(payRows.length!==1?'s':'');
-    const body = document.getElementById('payBody');
-    if(!payRows.length){ body.innerHTML = '<tr class="empty-row"><td colspan="11">No technicians match the filters</td></tr>'; return; }
-    const tot = payRows.reduce((a,r) => ({ sales:a.sales+r.s.sales, comm:a.comm+r.s.commission, ret:a.ret+r.s.retainer, gross:a.gross+r.s.gross, fu:a.fu+r.s.fuAmt, jl:a.jl+r.s.jlAmt, net:a.net+r.s.net, jobs:a.jobs+r.s.jobs }), {sales:0,comm:0,ret:0,gross:0,fu:0,jl:0,net:0,jobs:0});
-    body.innerHTML = payRows.map((r,i) => `<tr>
-      <td class="td-name">${pEsc(r.t.name)}</td>
-      <td>${pEsc(r.t.branch||'--')}</td>
-      <td>${r.s.jobs}</td>
-      <td class="td-amount">${pKES(r.s.sales)}</td>
-      <td class="td-amount">${pKES(r.s.commission)}</td>
-      <td class="td-amount">${pKES(r.s.retainer)}</td>
-      <td class="td-amount">${pKES(r.s.gross)}</td>
-      <td class="td-amount">${pKES(r.s.fuAmt)}</td>
-      <td class="td-amount">${pKES(r.s.jlAmt)}</td>
-      <td class="td-amount" style="color:#00E676;font-weight:800">${pKES(r.s.net)}</td>
-      <td class="pen-col-action"><button type="button" class="btn-apply" data-pay="${i}" style="padding:6px 12px;font-size:11px">Payslip</button></td>
-    </tr>`).join('') + `<tr style="font-weight:800">
-      <td colspan="2">TOTAL</td><td>${tot.jobs}</td><td>${pKES(tot.sales)}</td><td>${pKES(tot.comm)}</td><td>${pKES(tot.ret)}</td><td>${pKES(tot.gross)}</td><td>${pKES(tot.fu)}</td><td>${pKES(tot.jl)}</td><td>${pKES(tot.net)}</td><td class="pen-col-action"></td></tr>`;
-  }
-  document.getElementById('payMonth').value = pThisMonth();
-  document.getElementById('payRunBtn').addEventListener('click', renderPayroll);
-  document.getElementById('applyBtn').addEventListener('click', renderPayroll);
-  document.getElementById('payMonth').addEventListener('change', renderPayroll);
-  document.getElementById('payBody').addEventListener('click', e => {
-    const btn = e.target.closest('[data-pay]');
-    if(!btn) return;
-    const r = payRows[parseInt(btn.getAttribute('data-pay'),10)];
-    if(r) openPayslip(r.t.name, r.t.branch, r.s);
-  });
-  document.getElementById('payCsvBtn').addEventListener('click', () => {
-    if(!payRows.length) return;
-    const ym = payRows[0].s.ym;
-    downloadText('Payroll_'+ym+'.csv', PAY_CSV_HEAD.join(',')+'\n'+payRows.map(r => payCsvRow(r.t.name, r.t.branch, r.s)).join('\n')+'\n', 'text/csv');
-  });
   window.addEventListener('branchesLoaded', () => { if(allBookings.length){ generateReport(); } });
   let allTechs    = [];
   let allPenalties = [];
@@ -632,10 +471,9 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
     currentUserEmail = user.email;
     document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
     document.getElementById('userName').textContent   = user.email.split('@')[0];
-    await Promise.all([loadBookings(), loadTechs(), loadPenalties(), loadPayRates()]);
+    await Promise.all([loadBookings(), loadTechs(), loadPenalties()]);
     populateTechFilter();
     generateReport();
-    renderPayroll();
   });
 
   document.getElementById('signOutBtn').addEventListener('click', async () => {
